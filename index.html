@@ -1,0 +1,3681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Forge">
+<meta name="theme-color" content="#0f0f0f">
+<title>The Forge</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Barlow+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0f;
+  --surface: #181818;
+  --surface2: #212121;
+  --border: #2a2a2a;
+  --border-bright: #3a3a3a;
+  --text: #e8e8e8;
+  --text-dim: #888;
+  --text-faint: #444;
+  --fire: #e8541a;
+  --fire-dim: #7a2a0a;
+  --fire-glow: rgba(232,84,26,0.15);
+  --gold: #c8952a;
+  --gold-dim: #6a4a10;
+  --green: #2a8a4a;
+  --green-bright: #3aaa5a;
+  --radius: 3px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--fire);
+}
+.logo span { color: var(--text-faint); font-weight: 300; }
+.header-date {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* ── FORGE RANK BANNER ── */
+.rank-banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--fire);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rank-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.rank-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--fire);
+}
+.rank-progress-wrap { flex: 1; max-width: 280px; }
+.rank-bar-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.rank-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--fire-dim), var(--fire));
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+.rank-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+.next-rank { color: var(--text-faint); font-size: 11px; text-align: right; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE LAYOUT SYSTEM
+   xs:  < 400px  — Fold outer, small phones
+   sm:  400-599  — Standard phones
+   md:  600-899  — Fold inner, large phones, small tablets
+   lg:  900+     — Tablets, desktop
+══════════════════════════════════════════ */
+
+/* Base grid — single column */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.grid-full { grid-column: 1 / -1; }
+
+/* md: 2 columns */
+@media (min-width: 600px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
+/* lg: wider gap */
+@media (min-width: 900px) {
+  .grid { gap: 16px; }
+}
+
+/* ── XS: Fold outer / small phones (<400px) ── */
+@media (max-width: 399px) {
+  body { padding: 12px 10px 60px; }
+
+  .logo { font-size: 20px; letter-spacing: 3px; }
+  .header-date { display: none; } /* too cramped */
+  .header { margin-bottom: 16px; padding-bottom: 12px; }
+
+  /* Stack header buttons vertically if needed */
+  .header > div { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .trophy-btn { font-size: 9px; letter-spacing: 1px; padding: 4px 8px; }
+
+  /* Rank banner — stack vertically */
+  .rank-banner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 14px; }
+  .rank-progress-wrap { max-width: 100%; width: 100%; }
+  .next-rank { display: none; }
+  .rank-name { font-size: 18px; }
+
+  /* Cards — tighter padding */
+  .card { padding: 12px; }
+  .card-title { font-size: 9px; letter-spacing: 2px; margin-bottom: 10px; }
+
+  /* Attr rows — more compact */
+  .attr-row { padding: 8px 10px; gap: 8px; }
+  .attr-icon { font-size: 16px; width: 20px; }
+  .attr-name { font-size: 12px; }
+  .attr-desc { font-size: 10px; }
+  .attr-input { width: 60px; font-size: 13px; }
+
+  /* Week tiers — 3 columns instead of 6 */
+  .week-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .week-stat-icon { font-size: 14px; }
+  .week-stat-tier { font-size: 9px; }
+
+  /* Submit button */
+  .submit-btn { font-size: 11px; letter-spacing: 2px; padding: 11px; }
+
+  /* Weight input */
+  .weight-input-big { font-size: 22px; width: 90px; }
+  .weight-row { gap: 8px; }
+
+  /* History day rows — compact */
+  .day-row { padding: 8px 10px; gap: 6px; }
+  .day-row-date { width: 70px; }
+  .dow { font-size: 11px; }
+  .attr-pip { font-size: 9px; padding: 1px 5px; }
+
+  /* Quest cards */
+  .quest-card { padding: 10px 12px; }
+  .quest-title { font-size: 14px; }
+
+  /* Retro sheet */
+  .retro-row { padding: 9px 10px; }
+  .retro-label { font-size: 12px; }
+}
+
+/* ── SM: Standard phones (400-599px) ── */
+@media (min-width: 400px) and (max-width: 599px) {
+  body { padding: 16px 14px 60px; }
+  .rank-progress-wrap { max-width: 200px; }
+  .next-rank { display: none; }
+  .week-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .header-date { font-size: 10px; letter-spacing: 1px; }
+}
+
+/* ── MD: Fold inner / large phones / small tablets (600-899px) ── */
+@media (min-width: 600px) and (max-width: 899px) {
+  body { padding: 20px 16px 60px; }
+  .rank-progress-wrap { max-width: 240px; }
+  .week-grid { grid-template-columns: repeat(6, 1fr); }
+  /* Daily log and weight side by side */
+  .grid .card:first-child { grid-column: 1 / -1; }
+}
+
+/* ── LG: Tablet / desktop (900px+) ── */
+@media (min-width: 900px) {
+  body { padding: 24px 24px 60px; }
+  .rank-progress-wrap { max-width: 320px; }
+  .card { padding: 22px; }
+  .attr-row { padding: 12px 14px; }
+  .week-grid { grid-template-columns: repeat(6, 1fr); }
+  /* 3 column grid for wider screens */
+  .grid { grid-template-columns: 1fr 1fr 1fr; }
+  /* Daily log spans full width */
+  .grid .card:first-child { grid-column: 1 / -1; }
+  /* Weight and weekly tiers side by side */
+}
+
+/* ── XL: Wide desktop (1200px+) ── */
+@media (min-width: 1200px) {
+  .app-wrap { padding: 32px 40px 80px; }
+  .logo { font-size: 32px; letter-spacing: 8px; }
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title-accent {
+  color: var(--fire);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+/* ── DAILY LOG ── */
+.attr-list { display: flex; flex-direction: column; gap: 10px; }
+
+.attr-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+.attr-row.checked {
+  border-color: var(--fire-dim);
+  background: rgba(232,84,26,0.06);
+}
+.attr-row.checked::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--fire);
+}
+.attr-row:hover { border-color: var(--border-bright); }
+
+.attr-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+.attr-info { flex: 1; }
+.attr-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.attr-desc { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+
+.check-box {
+  width: 20px; height: 20px;
+  border: 1px solid var(--border-bright);
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fire);
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.attr-row.checked .check-box {
+  border-color: var(--fire);
+  background: var(--fire-dim);
+}
+
+/* Number inputs */
+.attr-num-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.attr-input {
+  width: 72px;
+  background: var(--bg);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: right;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.attr-input:focus { border-color: var(--fire); }
+.attr-unit {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* Perfect Day */
+.perfect-day-badge {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(200,149,42,0.08);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius);
+  margin-top: 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.perfect-day-badge.show { display: flex; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+/* Submit */
+.submit-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px;
+  background: var(--fire);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.submit-btn:hover { background: #f06020; }
+.submit-btn:active { transform: scale(0.99); }
+.submit-btn:disabled { background: var(--border); color: var(--text-faint); cursor: not-allowed; }
+
+/* ── WEIGHT CARD ── */
+.weight-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.weight-input-big {
+  width: 110px;
+  background: var(--surface2);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.weight-input-big:focus { border-color: var(--fire); }
+.weight-unit-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+.weight-delta {
+  margin-left: auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+.weight-delta.down { color: var(--green-bright); }
+.weight-delta.up { color: #e05050; }
+.weight-delta.same { color: var(--text-dim); }
+
+/* ── SVG GRAPH ── */
+.graph-wrap {
+  position: relative;
+  width: 100%;
+}
+.graph-svg {
+  width: 100%;
+  overflow: visible;
+}
+.graph-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ── WEEKLY STATS ── */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.week-stat {
+  text-align: center;
+}
+.week-stat-icon { font-size: 16px; margin-bottom: 4px; }
+.week-stat-tier {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 2px 0;
+}
+.tier-unforged { color: var(--text-faint); }
+.tier-bronze { color: #c87830; }
+.tier-iron { color: #8888aa; }
+.tier-steel { color: #aaccee; }
+.tier-mythic { color: var(--gold); }
+
+.week-stat-name {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── HISTORY DOTS ── */
+.history-row {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.day-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.day-dot.logged { background: var(--fire-dim); }
+.day-dot.perfect { background: var(--gold); }
+.day-dot.today { outline: 2px solid var(--fire); outline-offset: 1px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface);
+  border: 1px solid var(--fire);
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--fire);
+  text-transform: uppercase;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease;
+  z-index: 100;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+/* ── TROPHY BUTTON ── */
+.trophy-btn {
+  position: relative;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text-faint);
+  transition: border-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.trophy-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+.trophy-btn.has-new {
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 12px rgba(200,149,42,0.2);
+  animation: trophyPulse 2s ease infinite;
+}
+@keyframes trophyPulse {
+  0%,100% { box-shadow: 0 0 8px rgba(200,149,42,0.2); }
+  50% { box-shadow: 0 0 20px rgba(200,149,42,0.5); }
+}
+.trophy-count {
+  background: var(--gold);
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+  display: none;
+}
+.trophy-btn.has-new .trophy-count { display: inline; }
+
+/* ── ACHIEVEMENT INTERRUPT ── */
+.ach-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.ach-overlay.show { opacity: 1; pointer-events: all; }
+
+.ach-interrupt {
+  background: var(--surface);
+  border: 1px solid var(--gold);
+  border-top: 3px solid var(--gold);
+  max-width: 420px;
+  width: 90%;
+  padding: 32px 28px;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+  position: relative;
+}
+.ach-overlay.show .ach-interrupt {
+  transform: translateY(0) scale(1);
+}
+.ach-interrupt-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 10px;
+}
+.ach-interrupt-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+  display: block;
+  filter: drop-shadow(0 0 12px rgba(200,149,42,0.5));
+}
+.ach-interrupt-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+.ach-interrupt-desc {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 20px;
+  border-left: 2px solid var(--gold-dim);
+  padding-left: 12px;
+}
+.ach-interrupt-pts {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--fire);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.ach-dismiss-btn {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ach-dismiss-btn:hover { background: rgba(200,149,42,0.08); }
+
+/* ── ACHIEVEMENTS PANEL ── */
+.ach-panel {
+  display: none;
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 340px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 150;
+  flex-direction: column;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.6);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+.ach-panel.open { display: flex; transform: translateX(0); }
+.ach-panel-header {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ach-panel-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.ach-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+.ach-close-btn:hover { color: var(--text); }
+.ach-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ach-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.ach-item.new-ach { border-color: var(--gold-dim); background: rgba(200,149,42,0.04); }
+.ach-item-icon { font-size: 24px; flex-shrink: 0; }
+.ach-item-body { flex: 1; }
+.ach-item-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.ach-item-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-style: italic; line-height: 1.4; }
+.ach-item-date { font-size: 10px; color: var(--text-faint); margin-top: 4px; letter-spacing: 1px; }
+.ach-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+.ach-panel-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ── QUESTS ── */
+.quest-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.quest-card.epic   { border-left: 3px solid var(--gold); }
+.quest-card.weekly { border-left: 3px solid var(--fire); }
+.quest-card.wild   { border-left: 3px solid #5a8aee; }
+.quest-card.complete { border-left-color: var(--green-bright); opacity: 0.7; }
+
+.quest-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.quest-eyebrow.epic   { color: var(--gold-dim); }
+.quest-eyebrow.weekly { color: var(--fire-dim); }
+.quest-eyebrow.wild   { color: #2a4a8e; }
+.quest-eyebrow.complete { color: var(--green); }
+
+.quest-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.quest-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.quest-bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.quest-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+.quest-bar-fill.epic   { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+.quest-bar-fill.weekly { background: linear-gradient(90deg, var(--fire-dim), var(--fire)); }
+.quest-bar-fill.wild   { background: linear-gradient(90deg, #1a3a6e, #5a8aee); }
+.quest-bar-fill.complete { background: var(--green-bright); }
+
+.quest-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+}
+.quest-reward {
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.quest-complete-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--green-bright);
+  text-transform: uppercase;
+}
+.quest-expires {
+  color: #5a8aee;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+/* Quest complete interrupt */
+.quest-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.quest-overlay.show { opacity: 1; pointer-events: all; }
+.quest-interrupt {
+  background: var(--surface);
+  border: 1px solid var(--green-bright);
+  border-top: 3px solid var(--green-bright);
+  max-width: 420px;
+  width: 90%;
+  padding: 32px 28px;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.quest-overlay.show .quest-interrupt { transform: translateY(0) scale(1); }
+.quest-interrupt-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+.quest-interrupt-icon { font-size: 48px; margin-bottom: 10px; display: block; }
+.quest-interrupt-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--green-bright);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+.quest-interrupt-quest {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.quest-interrupt-reward {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  background: rgba(42,138,74,0.08);
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+}
+.quest-interrupt-gear {
+  font-size: 13px;
+  color: var(--gold);
+  font-style: italic;
+  margin-bottom: 20px;
+}
+.quest-dismiss-btn {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green-bright);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.quest-dismiss-btn:hover { background: rgba(42,138,74,0.08); }
+
+/* ── RETROACTIVE ENTRY SHEET ── */
+.retro-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.retro-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+.retro-sheet {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 20px 18px 40px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.retro-overlay.show .retro-sheet {
+  transform: translateY(0);
+}
+.retro-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-bright);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+.retro-sheet-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.retro-sheet-date {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.retro-sheet-sub {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.retro-attrs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.retro-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+.retro-row:active { background: rgba(232,84,26,0.08); }
+.retro-row.checked { border-color: var(--fire-dim); background: rgba(232,84,26,0.06); }
+.retro-row.checked::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--fire);
+  border-radius: 2px 0 0 2px;
+}
+.retro-row { position: relative; overflow: hidden; }
+.retro-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+.retro-label {
+  flex: 1;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.retro-check {
+  width: 20px; height: 20px;
+  border: 1px solid var(--border-bright);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--fire); font-size: 13px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.retro-row.checked .retro-check { border-color: var(--fire); background: var(--fire-dim); }
+
+.retro-num-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.retro-num-label {
+  flex: 1;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.retro-input {
+  width: 80px;
+  background: var(--bg);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: right;
+  outline: none;
+}
+.retro-input:focus { border-color: var(--fire); }
+.retro-unit {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.retro-save-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 13px;
+  background: var(--fire);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 48px;
+}
+.retro-save-btn:active { opacity: 0.85; }
+.retro-clear-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+.retro-clear-btn:active { color: var(--text-dim); border-color: var(--border-bright); }
+.day-row.editable { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.day-row.editable:active { background: rgba(232,84,26,0.04); }
+.day-row .edit-hint {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+.history-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 120;
+  overflow-y: auto;
+  animation: gearScreenIn 0.3s ease;
+}
+.history-screen.open { display: block; }
+.history-screen-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+.history-screen-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.history-screen-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--text);
+  flex: 1;
+}
+
+/* Tabs */
+.hist-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.hist-tab {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+.hist-tab:hover { color: var(--text-dim); }
+.hist-tab.active { color: var(--fire); border-bottom-color: var(--fire); }
+
+/* Week block */
+.week-block {
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.week-block-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.week-block-header:hover { background: var(--surface2); }
+.week-block-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  flex: 1;
+}
+.week-block-summary {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.week-stat-pip {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.week-stat-pip.done { background: var(--fire); }
+.week-stat-pip.mythic { background: var(--gold); }
+.week-block-toggle {
+  font-size: 10px;
+  color: var(--text-faint);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.week-block.expanded .week-block-toggle { transform: rotate(180deg); }
+
+/* Days inside week */
+.week-days {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+.week-block.expanded .week-days { display: block; }
+
+.day-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.1s;
+}
+.day-row:last-child { border-bottom: none; }
+.day-row.today-row { background: rgba(232,84,26,0.04); border-left: 2px solid var(--fire); }
+.day-row.empty-row { opacity: 0.35; }
+
+.day-row-date {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  width: 90px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.day-row-date .dow {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+}
+
+.day-attrs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.attr-pip {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+.attr-pip.done {
+  background: rgba(232,84,26,0.1);
+  border-color: var(--fire-dim);
+  color: var(--fire);
+}
+.attr-pip.steps-done {
+  background: rgba(42,138,74,0.1);
+  border-color: var(--green);
+  color: var(--green-bright);
+}
+
+.day-row-extras {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+.day-weight {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.day-steps {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+.day-perfect-pip {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  font-family: 'Barlow Condensed', sans-serif;
+  text-transform: uppercase;
+}
+
+/* Empty state */
+.hist-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-faint);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* ── MOBILE / ANDROID FIXES ── */
+
+/* Momentum scrolling on all scroll containers */
+.scroll-log, .ach-list, .gear-screen, .history-screen, .ach-panel {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Remove tap flash on div-based click targets, use our own feedback */
+.attr-row, .week-block-header, .cat-btn {
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+}
+.attr-row:active { background: rgba(232,84,26,0.1); }
+.week-block-header:active { background: var(--surface2); }
+
+/* Clear button — proper mobile-friendly style */
+.clear-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  cursor: pointer;
+  display: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.clear-btn:active { color: var(--text-dim); border-color: var(--border-bright); }
+
+/* Ensure all buttons have minimum tap target size */
+button {
+  min-height: 36px;
+}
+
+/* Prevent double-tap zoom on buttons */
+button, .attr-row, .week-block-header {
+  touch-action: manipulation;
+}
+
+/* Fix fixed panels being pushed by soft keyboard — use dvh if available */
+.ach-panel, .gear-screen, .history-screen {
+  height: 100dvh;
+  height: 100vh; /* fallback */
+}
+.ach-panel { height: auto; max-height: 100dvh; max-height: 100vh; }
+
+/* Toast position safe from navigation bar */
+.toast {
+  bottom: max(24px, env(safe-area-inset-bottom, 24px));
+}
+
+/* Safe area padding for body on notched phones */
+body {
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(60px, env(safe-area-inset-bottom, 60px));
+}
+.gear-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 120;
+  overflow-y: auto;
+  animation: gearScreenIn 0.3s ease;
+}
+@keyframes gearScreenIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.gear-screen.open { display: block; }
+
+.gear-screen-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.gear-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.gear-back-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.gear-back-btn:hover { border-color: var(--fire); color: var(--fire); }
+
+.gear-screen-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  flex: 1;
+}
+.gear-count-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+/* Equipped slots */
+.equipped-section {
+  margin-bottom: 28px;
+}
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.gear-slot {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 14px 12px;
+  min-height: 90px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s;
+}
+.gear-slot.filled { border-color: var(--gold-dim); }
+.gear-slot.filled:hover { border-color: var(--gold); }
+.gear-slot.empty { opacity: 0.35; border-style: dashed; }
+
+.slot-type {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 8px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 2px;
+}
+.slot-icon { font-size: 22px; margin-bottom: 4px; }
+.slot-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--gold);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.slot-empty-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+.slot-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+.slot-source {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  margin-top: auto;
+  padding-top: 6px;
+  text-transform: uppercase;
+}
+
+/* Stash / all items */
+.stash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.stash-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: border-color 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.stash-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+}
+.stash-item.type-weekly::before { background: var(--fire); }
+.stash-item.type-wild::before   { background: #5a8aee; }
+.stash-item.type-epic::before   { background: var(--gold); }
+.stash-item:hover { border-color: var(--border-bright); }
+
+.stash-icon { font-size: 26px; flex-shrink: 0; }
+.stash-body { flex: 1; min-width: 0; }
+.stash-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text);
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.stash-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+.stash-meta {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+.stash-empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-faint);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.gear-type-tag {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+.tag-weekly { background: rgba(232,84,26,0.12); color: var(--fire); }
+.tag-wild   { background: rgba(90,138,238,0.12); color: #5a8aee; }
+.tag-epic   { background: rgba(200,149,42,0.12); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="app-wrap" style="max-width:820px;margin:0 auto;">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">The <span>F</span>orge</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="header-date" id="header-date"></div>
+      <button class="trophy-btn" id="history-nav-btn" onclick="openHistoryScreen()" style="border-color:var(--border-bright);color:var(--text-dim);">
+        📅 History
+      </button>
+      <button class="trophy-btn" id="gear-nav-btn" onclick="openGearScreen()" style="border-color:var(--gold-dim);color:var(--gold-dim);">
+        ⚔️ Gear
+        <span class="trophy-count" id="gear-nav-count" style="background:var(--gold-dim);display:none"></span>
+      </button>
+      <button class="trophy-btn" id="trophy-btn" onclick="openAchPanel()">
+        🏆 <span>Feats</span>
+        <span class="trophy-count" id="trophy-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HISTORY SCREEN -->
+  <div class="history-screen" id="history-screen">
+    <div class="history-screen-inner">
+      <div class="history-screen-header">
+        <button class="gear-back-btn" onclick="closeHistoryScreen()">← Back</button>
+        <div class="history-screen-title">Chronicle</div>
+      </div>
+      <div class="hist-tabs">
+        <button class="hist-tab active" id="tab-7" onclick="setHistTab('7')">Last 7 Days</button>
+        <button class="hist-tab" id="tab-30" onclick="setHistTab('30')">Last 30 Days</button>
+        <button class="hist-tab" id="tab-weeks" onclick="setHistTab('weeks')">By Week</button>
+      </div>
+      <div id="history-content"></div>
+    </div>
+  </div>
+
+  <!-- RETROACTIVE ENTRY SHEET -->
+  <div class="retro-overlay" id="retro-overlay" onclick="retroOverlayTap(event)">
+    <div class="retro-sheet" id="retro-sheet">
+      <div class="retro-sheet-handle"></div>
+      <div class="retro-sheet-header">
+        <div>
+          <div class="retro-sheet-date" id="retro-date-label">—</div>
+          <div class="retro-sheet-sub">Retroactive Entry</div>
+        </div>
+      </div>
+
+      <div class="retro-attrs" id="retro-attrs">
+        <div class="retro-row" id="retro-row-vitality" onclick="retroToggle('vitality')">
+          <div class="retro-icon">❤️</div>
+          <div class="retro-label">Vitality — Ate well</div>
+          <div class="retro-check" id="retro-check-vitality"></div>
+        </div>
+        <div class="retro-row" id="retro-row-influence" onclick="retroToggle('influence')">
+          <div class="retro-icon">🗣️</div>
+          <div class="retro-label">Influence — Pipeline</div>
+          <div class="retro-check" id="retro-check-influence"></div>
+        </div>
+        <div class="retro-row" id="retro-row-strength" onclick="retroToggle('strength')">
+          <div class="retro-icon">💪</div>
+          <div class="retro-label">Strength — Trained</div>
+          <div class="retro-check" id="retro-check-strength"></div>
+        </div>
+        <div class="retro-row" id="retro-row-constitution" onclick="retroToggle('constitution')">
+          <div class="retro-icon">🛡️</div>
+          <div class="retro-label">Constitution — Environment</div>
+          <div class="retro-check" id="retro-check-constitution"></div>
+        </div>
+        <div class="retro-row" id="retro-row-intelligence" onclick="retroToggle('intelligence')">
+          <div class="retro-icon">🧠</div>
+          <div class="retro-label">Intelligence — Learned</div>
+          <div class="retro-check" id="retro-check-intelligence"></div>
+        </div>
+      </div>
+
+      <div class="retro-num-row">
+        <div class="retro-icon">🏃</div>
+        <div class="retro-num-label">Stamina — Steps</div>
+        <input class="retro-input" id="retro-steps" type="number" inputmode="numeric" min="0" max="99999" placeholder="0">
+        <div class="retro-unit">steps</div>
+      </div>
+
+      <div class="retro-num-row">
+        <div class="retro-icon">⚖️</div>
+        <div class="retro-num-label">Weight</div>
+        <input class="retro-input" id="retro-weight" type="number" inputmode="decimal" step="0.1" min="50" max="400" placeholder="—">
+        <div class="retro-unit">kg</div>
+      </div>
+
+      <button class="retro-save-btn" onclick="retroSave()">⚔ Save Entry</button>
+      <button class="retro-clear-btn" id="retro-clear-btn" onclick="retroClear()" style="display:none">Clear This Day</button>
+    </div>
+  </div>
+
+  <!-- GEAR SCREEN -->
+  <div class="gear-screen" id="gear-screen">
+    <div class="gear-screen-inner">
+      <div class="gear-header">
+        <button class="gear-back-btn" onclick="closeGearScreen()">← Back</button>
+        <div class="gear-screen-title">Armoury</div>
+        <div class="gear-count-badge" id="gear-count-badge"></div>
+      </div>
+
+      <!-- Equipped slots -->
+      <div class="equipped-section">
+        <div class="section-label">Equipped — Most Recent Drops</div>
+        <div class="slots-grid" id="equipped-slots"></div>
+      </div>
+
+      <!-- Full stash -->
+      <div>
+        <div class="section-label">Full Stash</div>
+        <div class="stash-grid" id="stash-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quest complete overlay -->
+  <div class="quest-overlay" id="quest-overlay" onclick="dismissQuest()">
+    <div class="quest-interrupt" onclick="event.stopPropagation()">
+      <div class="quest-interrupt-eyebrow">✦ Quest Complete</div>
+      <span class="quest-interrupt-icon" id="qi-icon">⚔️</span>
+      <div class="quest-interrupt-title" id="qi-title">—</div>
+      <div class="quest-interrupt-quest" id="qi-quest">—</div>
+      <div class="quest-interrupt-reward" id="qi-reward">—</div>
+      <div class="quest-interrupt-gear" id="qi-gear"></div>
+      <button class="quest-dismiss-btn" onclick="dismissQuest()">Claim Reward</button>
+    </div>
+  </div>
+
+  <div class="ach-overlay" id="ach-overlay" onclick="dismissAch()">
+    <div class="ach-interrupt" onclick="event.stopPropagation()">
+      <div class="ach-interrupt-eyebrow">⚠ Achievement Unlocked</div>
+      <span class="ach-interrupt-icon" id="ach-icon">🏆</span>
+      <div class="ach-interrupt-title" id="ach-title">—</div>
+      <div class="ach-interrupt-desc" id="ach-desc">—</div>
+      <div class="ach-interrupt-pts" id="ach-pts">+0 Forge Points</div>
+      <button class="ach-dismiss-btn" onclick="dismissAch()">Acknowledge &amp; Continue</button>
+    </div>
+  </div>
+
+  <!-- Achievements side panel -->
+  <div class="ach-panel" id="ach-panel">
+    <div class="ach-panel-header">
+      <div class="ach-panel-title">🏆 Feats of Legend</div>
+      <button class="ach-close-btn" onclick="closeAchPanel()">✕</button>
+    </div>
+    <div class="ach-list" id="ach-list"></div>
+    <div class="ach-panel-footer" id="ach-panel-footer"></div>
+  </div>
+
+  <!-- RANK BANNER -->
+  <div class="rank-banner">
+    <div>
+      <div class="rank-label">Forge Rank</div>
+      <div class="rank-name" id="rank-name">Initiate</div>
+    </div>
+    <div class="rank-progress-wrap">
+      <div class="rank-label" style="display:flex;justify-content:space-between">
+        <span id="rank-points-label">0 pts</span>
+        <span id="rank-next-label" style="color:var(--text-faint)"></span>
+      </div>
+      <div class="rank-bar-track"><div class="rank-bar-fill" id="rank-bar" style="width:0%"></div></div>
+    </div>
+    <div class="next-rank" id="next-rank-name"></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- DAILY LOG -->
+    <div class="card grid-full">
+      <div class="card-title">
+        Daily Log
+        <span class="card-title-accent" id="today-score">0 / 6 complete</span>
+      </div>
+
+      <div class="attr-list">
+        <!-- Vitality: yes/no -->
+        <div class="attr-row" id="row-vitality" onclick="toggleCheck('vitality')">
+          <div class="attr-icon">❤️</div>
+          <div class="attr-info">
+            <div class="attr-name">Vitality</div>
+            <div class="attr-desc">Ate well today</div>
+          </div>
+          <div class="check-box" id="check-vitality"></div>
+        </div>
+
+        <!-- Stamina: steps number -->
+        <div class="attr-row" id="row-stamina">
+          <div class="attr-icon">🏃</div>
+          <div class="attr-info">
+            <div class="attr-name">Stamina</div>
+            <div class="attr-desc">Daily steps — 10,000 target</div>
+          </div>
+          <div class="attr-num-wrap">
+            <input class="attr-input" id="input-steps" type="number" inputmode="numeric" min="0" max="99999" placeholder="0" oninput="onStepsInput()">
+            <span class="attr-unit">steps</span>
+          </div>
+        </div>
+
+        <!-- Influence: yes/no -->
+        <div class="attr-row" id="row-influence" onclick="toggleCheck('influence')">
+          <div class="attr-icon">🗣️</div>
+          <div class="attr-info">
+            <div class="attr-name">Influence</div>
+            <div class="attr-desc">Moved the pipeline / meaningful work</div>
+          </div>
+          <div class="check-box" id="check-influence"></div>
+        </div>
+
+        <!-- Strength: yes/no -->
+        <div class="attr-row" id="row-strength" onclick="toggleCheck('strength')">
+          <div class="attr-icon">💪</div>
+          <div class="attr-info">
+            <div class="attr-name">Strength</div>
+            <div class="attr-desc">Physical training completed</div>
+          </div>
+          <div class="check-box" id="check-strength"></div>
+        </div>
+
+        <!-- Constitution: yes/no -->
+        <div class="attr-row" id="row-constitution" onclick="toggleCheck('constitution')">
+          <div class="attr-icon">🛡️</div>
+          <div class="attr-info">
+            <div class="attr-name">Constitution</div>
+            <div class="attr-desc">Maintained your environment</div>
+          </div>
+          <div class="check-box" id="check-constitution"></div>
+        </div>
+
+        <!-- Intelligence: yes/no -->
+        <div class="attr-row" id="row-intelligence" onclick="toggleCheck('intelligence')">
+          <div class="attr-icon">🧠</div>
+          <div class="attr-info">
+            <div class="attr-name">Intelligence</div>
+            <div class="attr-desc">Learned or grew today</div>
+          </div>
+          <div class="check-box" id="check-intelligence"></div>
+        </div>
+      </div>
+
+      <div class="perfect-day-badge" id="perfect-badge">
+        🔥 Perfect Day
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="submitDay()">Enter the Forge</button>
+      <button id="clear-today-btn" onclick="clearTodayStep1()" class="clear-btn">
+        Clear &amp; Start Today Fresh
+      </button>
+      <button id="clear-today-confirm-btn" onclick="clearTodayConfirm()" style="
+        width:100%; margin-top:4px; padding:8px;
+        background: rgba(200,50,50,0.15); border:1px solid #8b2a2a;
+        border-radius:var(--radius); font-family:'Barlow Condensed',sans-serif;
+        font-size:10px; letter-spacing:3px; text-transform:uppercase;
+        color:#e05050; cursor:pointer;
+        display:none;
+      ">
+        ⚠ Tap again to confirm — this cannot be undone
+      </button>
+    </div>
+
+    <!-- WEIGHT TRACKER -->
+    <div class="card">
+      <div class="card-title">
+        Weight
+        <span class="card-title-accent" id="weight-streak-label"></span>
+      </div>
+
+      <div class="weight-row">
+        <input class="weight-input-big" id="weight-input" type="number" inputmode="decimal" step="0.1" min="50" max="400" placeholder="—" oninput="onWeightInput()">
+        <span class="weight-unit-label">kg</span>
+        <div class="weight-delta" id="weight-delta"></div>
+      </div>
+
+      <div class="graph-wrap">
+        <svg class="graph-svg" id="weight-graph" height="120"></svg>
+        <div class="graph-empty" id="graph-empty">Log weight for 2+ days to see your graph</div>
+      </div>
+    </div>
+
+    <!-- WEEKLY TIERS -->
+    <div class="card">
+      <div class="card-title">
+        This Week
+        <span class="card-title-accent" id="week-label"></span>
+      </div>
+      <div class="week-grid" id="week-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- 30-DAY HISTORY -->
+    <div class="card grid-full">
+      <div class="card-title">
+        30-Day Chronicle
+        <span class="card-title-accent" id="streak-label"></span>
+      </div>
+      <div class="history-row" id="history-dots"></div>
+      <div style="display:flex;gap:16px;margin-top:10px;">
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim)">
+          <div class="day-dot logged"></div> Logged
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim)">
+          <div class="day-dot perfect"></div> Perfect Day
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim)">
+          <div class="day-dot today"></div> Today
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTS -->
+    <div class="card grid-full">
+      <div class="card-title">
+        Active Quests
+        <span class="card-title-accent" id="quests-label"></span>
+      </div>
+      <div id="quests-container"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const RANKS = [
+  { name: 'Initiate',    points: 0   },
+  { name: 'Tempered',    points: 50  },
+  { name: 'Ironbound',   points: 150 },
+  { name: 'Hardened',    points: 300 },
+  { name: 'Steelheart',  points: 500 },
+  { name: 'Forgeborn',   points: 750 },
+  { name: 'Living Steel',points: 1000},
+];
+
+const ATTRS = ['vitality','influence','strength','constitution','intelligence'];
+const STEPS_TARGET = 10000;
+
+const TIER_LABELS = ['Unforged','Bronze','Iron','Steel','Mythic'];
+const TIER_CLASSES = ['tier-unforged','tier-bronze','tier-iron','tier-steel','tier-mythic'];
+
+function localDateStr(date) {
+  // Always use LOCAL date, not UTC — avoids timezone drift
+  const d = date || new Date();
+  const yr = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const dy = String(d.getDate()).padStart(2, '0');
+  return `${yr}-${mo}-${dy}`;
+}
+
+function todayKey() {
+  return localDateStr(new Date());
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('forge_v1') || '{}'); } catch { return {}; }
+}
+function saveState(s) { localStorage.setItem('forge_v1', JSON.stringify(s)); }
+
+let state = loadState();
+// Ensure keys exist
+if (!state.days) state.days = {};       // { "2025-03-28": { checks:{}, steps:0, weight:null, perfect:false } }
+if (!state.weightLog) state.weightLog = []; // [{date, weight}]
+if (!state.points) state.points = 0;
+
+// Today's session (unsaved until submit)
+let session = {
+  checks: { vitality:false, influence:false, strength:false, constitution:false, intelligence:false },
+  steps: 0,
+  weight: null,
+};
+
+// Dynamic today — recalculated on each use
+function getTodayStr() { return todayKey(); }
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function init() {
+  const today = getTodayStr();
+
+  // Header date
+  document.getElementById('header-date').textContent =
+    new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+
+  // Reset session for a fresh day
+  session = {
+    checks: { vitality:false, influence:false, strength:false, constitution:false, intelligence:false },
+    steps: 0,
+    weight: null,
+  };
+
+  // Reset form UI
+  ATTRS.forEach(a => {
+    const row = document.getElementById('row-' + a);
+    const box = document.getElementById('check-' + a);
+    if (row) row.classList.remove('checked');
+    if (box) box.textContent = '';
+  });
+  // Also clear stamina row and perfect badge
+  const staminaRow = document.getElementById('row-stamina');
+  if (staminaRow) staminaRow.classList.remove('checked');
+  const perfectBadge = document.getElementById('perfect-badge');
+  if (perfectBadge) perfectBadge.classList.remove('show');
+  document.getElementById('input-steps').value = '';
+  document.getElementById('weight-input').value = '';
+
+  // If already logged today, prefill
+  const alreadyLogged = !!state.days[today];
+  if (alreadyLogged) {
+    const d = state.days[today];
+    ATTRS.forEach(a => { if (d.checks && d.checks[a]) { session.checks[a]=true; updateCheckUI(a); } });
+    session.steps = d.steps || 0;
+    document.getElementById('input-steps').value = session.steps || '';
+    if (d.weight) {
+      session.weight = d.weight;
+      document.getElementById('weight-input').value = d.weight;
+    }
+    document.getElementById('submit-btn').textContent = 'Update Entry';
+    document.getElementById('clear-today-btn').style.display = 'block';
+  } else {
+    document.getElementById('submit-btn').textContent = 'Enter the Forge';
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('clear-today-btn').style.display = 'none';
+    document.getElementById('clear-today-confirm-btn').style.display = 'none';
+  }
+
+  initQuests();
+  renderAll();
+
+  // Restore unseen achievement glow from previous sessions
+  if (state.achievements) {
+    newAchsSinceLastView = Object.values(state.achievements).filter(a => a.isNew).length;
+    updateTrophyBtn();
+  }
+}
+
+// Detect date change while app is open (e.g. left open overnight)
+let _lastKnownDate = getTodayStr();
+setInterval(() => {
+  const now = getTodayStr();
+  if (now !== _lastKnownDate) {
+    _lastKnownDate = now;
+    showToast('⚔ A new day begins. Enter the Forge.');
+    init();
+  }
+}, 30000); // check every 30 seconds
+
+// ─────────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────────
+function clearTodayStep1() {
+  // Show the confirm button — second tap executes
+  const confirmBtn = document.getElementById('clear-today-confirm-btn');
+  confirmBtn.style.display = 'block';
+  // Auto-hide after 4 seconds if not tapped
+  setTimeout(() => { confirmBtn.style.display = 'none'; }, 4000);
+}
+
+function clearTodayConfirm() {
+  const today = getTodayStr();
+
+  // Wipe state
+  delete state.days[today];
+  state.weightLog = (state.weightLog || []).filter(w => w.date !== today);
+  saveState(state);
+
+  // Reset session immediately
+  session = {
+    checks: { vitality:false, influence:false, strength:false, constitution:false, intelligence:false },
+    steps: 0,
+    weight: null,
+  };
+
+  // Explicitly clear every row and checkbox
+  ATTRS.forEach(a => {
+    const row = document.getElementById('row-' + a);
+    const box = document.getElementById('check-' + a);
+    if (row) row.classList.remove('checked');
+    if (box) box.textContent = '';
+  });
+  const staminaRow = document.getElementById('row-stamina');
+  if (staminaRow) staminaRow.classList.remove('checked');
+  document.getElementById('input-steps').value = '';
+  document.getElementById('weight-input').value = '';
+  document.getElementById('perfect-badge').classList.remove('show');
+  document.getElementById('submit-btn').textContent = 'Enter the Forge';
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('clear-today-btn').style.display = 'none';
+  document.getElementById('clear-today-confirm-btn').style.display = 'none';
+  document.getElementById('today-score').textContent = '0 / 6 complete';
+
+  showToast('⚔ Today cleared. Enter the Forge anew.');
+  renderAll();
+}
+
+function toggleCheck(attr) {
+  if (!ATTRS.includes(attr)) return;
+  session.checks[attr] = !session.checks[attr];
+  updateCheckUI(attr);
+  updateDailyScore();
+}
+
+function updateCheckUI(attr) {
+  const row = document.getElementById('row-' + attr);
+  const box = document.getElementById('check-' + attr);
+  if (session.checks[attr]) {
+    row.classList.add('checked');
+    box.textContent = '✓';
+  } else {
+    row.classList.remove('checked');
+    box.textContent = '';
+  }
+}
+
+function onStepsInput() {
+  session.steps = parseInt(document.getElementById('input-steps').value) || 0;
+  const row = document.getElementById('row-stamina');
+  if (session.steps >= STEPS_TARGET) row.classList.add('checked');
+  else row.classList.remove('checked');
+  updateDailyScore();
+  autosaveDayField('steps', session.steps);
+}
+
+function onWeightInput() {
+  const v = parseFloat(document.getElementById('weight-input').value);
+  session.weight = isNaN(v) ? null : v;
+  renderWeightDelta();
+  if (session.weight !== null) {
+    autosaveDayField('weight', session.weight);
+    saveState(state);
+    renderWeightGraph();
+    checkQuests();
+  }
+}
+
+// Immediately persist a single field to today's day record
+function autosaveDayField(field, value) {
+  const today = getTodayStr();
+  if (!state.days[today]) {
+    state.days[today] = { checks: {}, steps: 0, weight: null, perfect: false };
+  }
+  state.days[today][field] = value;
+  saveState(state);
+}
+
+function updateDailyScore() {
+  const checks = ATTRS.filter(a => session.checks[a]).length;
+  const stepsOk = session.steps >= STEPS_TARGET;
+  const total = checks + (stepsOk ? 1 : 0);
+  const isPerfect = checks >= 4 && stepsOk; // Ate well + steps + meaningful work at minimum
+  document.getElementById('today-score').textContent = `${total} / 6 complete`;
+  document.getElementById('perfect-badge').classList.toggle('show', isPerfect);
+}
+
+function submitDay() {
+  const today = getTodayStr();
+  const stepsOk = session.steps >= STEPS_TARGET;
+  const checks = ATTRS.reduce((o,a) => ({...o,[a]:session.checks[a]}), {});
+  const totalChecks = ATTRS.filter(a=>checks[a]).length;
+  const isPerfect = totalChecks >= 4 && stepsOk;
+  const alreadyLogged = !!state.days[today];
+
+  // Points
+  const dayPoints = totalChecks + (stepsOk?1:0) + (isPerfect?3:0);
+
+  if (!alreadyLogged) {
+    state.points += dayPoints;
+  } else {
+    // Recalculate difference
+    const prev = state.days[today];
+    const prevChecks = ATTRS.filter(a=>prev.checks[a]).length;
+    const prevSteps = (prev.steps||0) >= STEPS_TARGET;
+    const prevPerfect = prev.perfect;
+    const prevPoints = prevChecks + (prevSteps?1:0) + (prevPerfect?3:0);
+    state.points = Math.max(0, state.points - prevPoints + dayPoints);
+  }
+
+  state.days[today] = {
+    checks,
+    steps: session.steps,
+    weight: session.weight,
+    perfect: isPerfect,
+  };
+
+  // Sync weightLog from all day records (single source of truth)
+  state.weightLog = Object.entries(state.days)
+    .filter(([, d]) => d.weight !== null && d.weight !== undefined)
+    .map(([date, d]) => ({ date, weight: d.weight }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  saveState(state);
+  checkAchievements();
+  checkQuests();
+
+  document.getElementById('submit-btn').textContent = 'Forged ✓';
+  document.getElementById('submit-btn').disabled = true;
+  setTimeout(() => {
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').textContent = 'Update Entry';
+  }, 2000);
+
+  showToast(isPerfect ? '🔥 Perfect Day — The Forge remembers.' : '⚔ Deed recorded.');
+  renderAll();
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function renderAll() {
+  renderRank();
+  renderWeightDelta();
+  renderWeightGraph();
+  renderWeeklyTiers();
+  renderHistory();
+  renderQuests();
+  updateDailyScore();
+  updateGearNavBtn();
+}
+
+function renderRank() {
+  const pts = state.points;
+  let rankIdx = 0;
+  for (let i = RANKS.length-1; i >= 0; i--) {
+    if (pts >= RANKS[i].points) { rankIdx = i; break; }
+  }
+  const rank = RANKS[rankIdx];
+  const next = RANKS[rankIdx+1];
+  document.getElementById('rank-name').textContent = rank.name;
+  document.getElementById('rank-points-label').textContent = `${pts} pts`;
+
+  if (next) {
+    const pct = ((pts - rank.points) / (next.points - rank.points)) * 100;
+    document.getElementById('rank-bar').style.width = Math.min(100,pct) + '%';
+    document.getElementById('rank-next-label').textContent = `${next.points - pts} to next`;
+    document.getElementById('next-rank-name').textContent = '→ ' + next.name;
+  } else {
+    document.getElementById('rank-bar').style.width = '100%';
+    document.getElementById('rank-next-label').textContent = 'Maximum rank';
+    document.getElementById('next-rank-name').textContent = '';
+  }
+}
+
+function getWeightLog() {
+  // Always derive from day records — single source of truth
+  return Object.entries(state.days)
+    .filter(([, d]) => d.weight !== null && d.weight !== undefined)
+    .map(([date, d]) => ({ date, weight: d.weight }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function renderWeightDelta() {
+  const el = document.getElementById('weight-delta');
+  const wl = getWeightLog();
+  if (!session.weight || wl.length < 1) { el.textContent = ''; return; }
+  const today = getTodayStr();
+  const prev = wl.length > 1 ? wl[wl.length - (wl[wl.length-1].date === today ? 2 : 1)].weight : null;
+  if (!prev) { el.textContent = ''; return; }
+  const diff = session.weight - prev;
+  if (Math.abs(diff) < 0.05) {
+    el.textContent = '— same';
+    el.className = 'weight-delta same';
+  } else if (diff < 0) {
+    el.textContent = `▼ ${Math.abs(diff).toFixed(1)} kg`;
+    el.className = 'weight-delta down';
+  } else {
+    el.textContent = `▲ ${diff.toFixed(1)} kg`;
+    el.className = 'weight-delta up';
+  }
+}
+
+function renderWeightGraph() {
+  const svg = document.getElementById('weight-graph');
+  const empty = document.getElementById('graph-empty');
+  const wl = getWeightLog();
+
+  if (wl.length < 2) {
+    svg.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const W = svg.parentElement.clientWidth || 360;
+  const H = 120;
+  const PAD = { top:16, bottom:24, left:36, right:12 };
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+
+  const weights = wl.map(w => w.weight);
+  const minW = Math.min(...weights) - 1;
+  const maxW = Math.max(...weights) + 1;
+  const range = maxW - minW || 1;
+
+  const pts = wl.map((w, i) => {
+    const x = PAD.left + (i / (wl.length-1)) * (W - PAD.left - PAD.right);
+    const y = PAD.top + (1 - (w.weight - minW)/range) * (H - PAD.top - PAD.bottom);
+    return [x, y, w];
+  });
+
+  // Grid lines
+  const gridCount = 4;
+  let gridSVG = '';
+  for (let i=0;i<=gridCount;i++) {
+    const y = PAD.top + (i/gridCount)*(H - PAD.top - PAD.bottom);
+    const val = (maxW - (i/gridCount)*range).toFixed(1);
+    gridSVG += `<line x1="${PAD.left}" y1="${y}" x2="${W-PAD.right}" y2="${y}" stroke="#2a2a2a" stroke-width="1"/>`;
+    gridSVG += `<text x="${PAD.left-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#555" font-family="Barlow Condensed,sans-serif">${val}</text>`;
+  }
+
+  // Area fill
+  const lineD = pts.map((p,i) => `${i===0?'M':'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const areaD = lineD + ` L${pts[pts.length-1][0].toFixed(1)},${H-PAD.bottom} L${pts[0][0].toFixed(1)},${H-PAD.bottom} Z`;
+
+  // Dots
+  let dotsSVG = pts.map(p =>
+    `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#e8541a"/>`
+  ).join('');
+
+  // Today label
+  const last = pts[pts.length-1];
+  const labelY = last[1] > 20 ? last[1] - 8 : last[1] + 16;
+  const labelSVG = `<text x="${last[0].toFixed(1)}" y="${labelY}" text-anchor="middle" font-size="10" fill="#e8541a" font-family="Barlow Condensed,sans-serif" font-weight="600">${last[2].weight}</text>`;
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8541a" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#e8541a" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${gridSVG}
+    <path d="${areaD}" fill="url(#area-grad)"/>
+    <path d="${lineD}" fill="none" stroke="#7a2a0a" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${lineD}" fill="none" stroke="#e8541a" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="none" opacity="0.8"/>
+    ${dotsSVG}
+    ${labelSVG}
+  `;
+}
+
+function getWeekDays() {
+  const now = new Date();
+  const dow = now.getDay(); // 0=sun
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((dow+6)%7));
+  const days = [];
+  for (let i=0;i<7;i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    days.push(localDateStr(d));
+  }
+  return days;
+}
+
+function getTierForAttr(attr, weekDays) {
+  let count = 0;
+  weekDays.forEach(d => {
+    const day = state.days[d];
+    if (!day) return;
+    if (attr === 'stamina') {
+      if ((day.steps||0) >= STEPS_TARGET) count++;
+    } else {
+      if (day.checks && day.checks[attr]) count++;
+    }
+  });
+  // count out of logged days
+  if (count === 0) return 0; // Unforged
+  if (count === 1) return 1; // Bronze
+  if (count <= 3) return 2;  // Iron
+  if (count <= 5) return 3;  // Steel
+  return 4;                   // Mythic
+}
+
+function renderWeeklyTiers() {
+  const weekDays = getWeekDays();
+  const logged = weekDays.filter(d => !!state.days[d]).length;
+  document.getElementById('week-label').textContent = `${logged}/7 days logged`;
+
+  const allAttrs = [
+    {key:'vitality',icon:'❤️',label:'Vitality'},
+    {key:'stamina',icon:'🏃',label:'Stamina'},
+    {key:'influence',icon:'🗣️',label:'Influence'},
+    {key:'strength',icon:'💪',label:'Strength'},
+    {key:'constitution',icon:'🛡️',label:'Constit.'},
+    {key:'intelligence',icon:'🧠',label:'Intel.'},
+  ];
+
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = allAttrs.map(a => {
+    const tier = getTierForAttr(a.key, weekDays);
+    return `<div class="week-stat">
+      <div class="week-stat-icon">${a.icon}</div>
+      <div class="week-stat-tier ${TIER_CLASSES[tier]}">${TIER_LABELS[tier]}</div>
+      <div class="week-stat-name">${a.label}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHistory() {
+  const today = new Date();
+  const dots = document.getElementById('history-dots');
+  let streak = 0; let counting = true;
+  const dotArr = [];
+  for (let i=29;i>=0;i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate()-i);
+    const key = localDateStr(d);
+    const day = state.days[key];
+    const isToday = i===0;
+    const logged = !!day;
+    const perfect = day && day.perfect;
+    if (counting && i<29) {
+      if (logged) streak++; else counting=false;
+    }
+    dotArr.push(`<div class="day-dot ${perfect?'perfect':logged?'logged':''} ${isToday?'today':''}" title="${key}"></div>`);
+  }
+  dots.innerHTML = dotArr.join('');
+  document.getElementById('streak-label').textContent = streak > 0 ? `${streak} day streak 🔥` : '';
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────────
+// ACHIEVEMENTS ENGINE
+// ─────────────────────────────────────────────
+
+const ACHIEVEMENTS = [
+  {
+    id: 'first_blood',
+    icon: '⚔️',
+    title: 'First Blood',
+    desc: "You logged your first day. The Forge acknowledges your existence. Grudgingly.",
+    pts: 5,
+    check: (s) => Object.keys(s.days).length >= 1,
+  },
+  {
+    id: 'breakfast_club',
+    icon: '🥗',
+    title: 'Breakfast Club',
+    desc: "You ate well. Congratulations. You have achieved the bare minimum that every nutritionist has been screaming at you about for years.",
+    pts: 3,
+    check: (s) => {
+      const today = s.days[getTodayStr()];
+      return today && today.checks && today.checks.vitality;
+    },
+  },
+  {
+    id: 'steps_nerd',
+    icon: '🦶',
+    title: 'Compulsive Pedestrian',
+    desc: "Ten thousand steps. You walked roughly the length of a small city. Nobody noticed. The Forge noticed.",
+    pts: 5,
+    check: (s) => {
+      const today = s.days[getTodayStr()];
+      return today && (today.steps||0) >= 10000;
+    },
+  },
+  {
+    id: 'big_steps',
+    icon: '🏔️',
+    title: 'Are You Running From Something',
+    desc: "You logged over 20,000 steps. That's not a walk. That's a cry for help with excellent cardiovascular benefits.",
+    pts: 10,
+    check: (s) => {
+      const today = s.days[getTodayStr()];
+      return today && (today.steps||0) >= 20000;
+    },
+  },
+  {
+    id: 'perfect_day',
+    icon: '🔥',
+    title: 'Statistically Improbable',
+    desc: "A Perfect Day. Every single box checked. The System is mildly suspicious you cheated. It cannot prove this.",
+    pts: 10,
+    check: (s) => {
+      const today = s.days[getTodayStr()];
+      return today && today.perfect;
+    },
+  },
+  {
+    id: 'three_day_streak',
+    icon: '📅',
+    title: 'It\'s a Pattern Now',
+    desc: "Three days in a row. You've gone from 'trying something' to 'doing a thing'. These are different. One of them is dangerous.",
+    pts: 8,
+    check: (s) => {
+      let streak = 0;
+      for (let i=0;i<3;i++) {
+        const d = new Date(); d.setDate(d.getDate()-i);
+        if (s.days[localDateStr(d)]) streak++; else break;
+      }
+      return streak >= 3;
+    },
+  },
+  {
+    id: 'seven_day_streak',
+    icon: '🗓️',
+    title: 'Week One Survivor',
+    desc: "Seven consecutive days. You have now officially outlasted most gym memberships purchased in January.",
+    pts: 20,
+    check: (s) => {
+      let streak = 0;
+      for (let i=0;i<7;i++) {
+        const d = new Date(); d.setDate(d.getDate()-i);
+        if (s.days[localDateStr(d)]) streak++; else break;
+      }
+      return streak >= 7;
+    },
+  },
+  {
+    id: 'sunday_warrior',
+    icon: '😤',
+    title: 'Sunday is Not Sacred',
+    desc: "You logged on a Sunday. The couch is disappointed. The couch will recover. Will you?",
+    pts: 5,
+    check: (s) => {
+      return new Date().getDay() === 0 && !!s.days[getTodayStr()];
+    },
+  },
+  {
+    id: 'midnight_forge',
+    icon: '🌙',
+    title: 'The Witching Hour Log',
+    desc: "It is past midnight. You are logging your day. We have questions. We will not ask them. Enter the Forge.",
+    pts: 8,
+    check: (s) => new Date().getHours() >= 23 || new Date().getHours() < 4,
+  },
+  {
+    id: 'early_bird',
+    icon: '🌅',
+    title: 'Disgustingly Functional',
+    desc: "Logged before 7am. You are the person other people hate at the gym. The Forge respects this.",
+    pts: 8,
+    check: (s) => new Date().getHours() < 7 && !!s.days[getTodayStr()],
+  },
+  {
+    id: 'brain_only',
+    icon: '🧠',
+    title: 'The Thinker (Sits A Lot)',
+    desc: "Intelligence checked. Strength skipped. You grew your mind and rested your body. Philosophers have done worse.",
+    pts: 3,
+    check: (s) => {
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.intelligence && !t.checks.strength;
+    },
+  },
+  {
+    id: 'brawn_only',
+    icon: '🏋️',
+    title: 'Himbo Protocol Engaged',
+    desc: "Strength checked. Intelligence skipped. You trained hard. You did not learn anything. The barbarians would be proud.",
+    pts: 3,
+    check: (s) => {
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.strength && !t.checks.intelligence;
+    },
+  },
+  {
+    id: 'clean_house_lazy_body',
+    icon: '🧹',
+    title: 'Domestically Exceptional',
+    desc: "Constitution checked. Strength skipped. Your home is spotless. Your muscles remain theoretical.",
+    pts: 3,
+    check: (s) => {
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.constitution && !t.checks.strength;
+    },
+  },
+  {
+    id: 'ate_well_skipped_steps',
+    icon: '🛋️',
+    title: 'Healthy Sedentary',
+    desc: "Vitality checked. Under 2,000 steps. You ate a salad and then sat completely still for the rest of the day. The Forge has no comment.",
+    pts: 3,
+    check: (s) => {
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.vitality && (t.steps||0) < 2000;
+    },
+  },
+  {
+    id: 'weight_tracker_1',
+    icon: '⚖️',
+    title: 'Facing the Tribunal',
+    desc: "You logged your weight. The number is what it is. The Forge does not judge. The Forge simply records. And remembers. Forever.",
+    pts: 5,
+    check: (s) => s.weightLog && s.weightLog.length >= 1,
+  },
+  {
+    id: 'weight_tracker_7',
+    icon: '📉',
+    title: 'Data Doesn\'t Lie (But It Can Hurt)',
+    desc: "Seven weight entries. You now have a graph. The graph goes in a direction. We trust you know which direction you're aiming for.",
+    pts: 10,
+    check: (s) => s.weightLog && s.weightLog.length >= 7,
+  },
+  {
+    id: 'pipeline_pusher',
+    icon: '💼',
+    title: 'The Grindset is Real',
+    desc: "Influence logged five times. You moved the pipeline. You made the calls. Somewhere a spreadsheet updated because of you. Glory.",
+    pts: 8,
+    check: (s) => {
+      return Object.values(s.days).filter(d => d.checks && d.checks.influence).length >= 5;
+    },
+  },
+  {
+    id: 'all_stats_once',
+    icon: '🎯',
+    title: 'Renaissance Peasant',
+    desc: "You've checked every single attribute at least once. You are a man of many disciplines and moderate follow-through. The Forge applauds.",
+    pts: 10,
+    check: (s) => {
+      const allDays = Object.values(s.days);
+      return ATTRS.every(a => allDays.some(d => d.checks && d.checks[a]));
+    },
+  },
+  {
+    id: 'three_perfect',
+    icon: '👑',
+    title: 'Thrice Blessed, Mildly Insufferable',
+    desc: "Three Perfect Days. You are becoming someone else. We hope that someone is better. We also hope they're less smug about it.",
+    pts: 25,
+    check: (s) => Object.values(s.days).filter(d => d.perfect).length >= 3,
+  },
+  {
+    id: 'initiate_rank',
+    icon: '🔥',
+    title: 'The Forge Accepts You',
+    desc: "Rank: Initiate. You have walked through the door. There are many more doors. Most of them are on fire.",
+    pts: 0,
+    check: (s) => s.points >= 0 && Object.keys(s.days).length >= 1,
+  },
+  {
+    id: 'tempered_rank',
+    icon: '⚒️',
+    title: 'Tempered',
+    desc: "You reached rank: Tempered. The metal is beginning to hold its shape. Do not celebrate yet. The hammer isn't done.",
+    pts: 0,
+    check: (s) => s.points >= 50,
+  },
+  {
+    id: 'ironbound_rank',
+    icon: '🔗',
+    title: 'Ironbound',
+    desc: "Rank: Ironbound. You are bound to this now. The Forge is not a phase. The Forge is a lifestyle. Welcome to the problem.",
+    pts: 0,
+    check: (s) => s.points >= 150,
+  },
+  {
+    id: 'constitution_streak',
+    icon: '🏠',
+    title: 'Functioning Adult Detected',
+    desc: "Constitution logged three days running. Your environment is maintained. Scientists confirm this is abnormal.",
+    pts: 6,
+    check: (s) => {
+      let streak = 0;
+      for (let i=0;i<3;i++) {
+        const d = new Date(); d.setDate(d.getDate()-i);
+        const day = s.days[localDateStr(d)];
+        if (day && day.checks && day.checks.constitution) streak++; else break;
+      }
+      return streak >= 3;
+    },
+  },
+  {
+    id: 'log_thirty',
+    icon: '🗿',
+    title: 'The Monolith',
+    desc: "Thirty total logs. You have been consistent long enough that it is now simply who you are. The Forge does not know what to do with this. It is pleased.",
+    pts: 30,
+    check: (s) => Object.keys(s.days).length >= 30,
+  },
+];
+
+// Queue for showing achievements one at a time
+let achQueue = [];
+let achShowing = false;
+let newAchsSinceLastView = 0;
+
+function checkAchievements() {
+  if (!state.achievements) state.achievements = {};
+  const newlyUnlocked = [];
+
+  for (const ach of ACHIEVEMENTS) {
+    if (state.achievements[ach.id]) continue; // already earned
+    try {
+      if (ach.check(state)) {
+        state.achievements[ach.id] = {
+          date: getTodayStr(),
+          title: ach.title,
+          icon: ach.icon,
+          desc: ach.desc,
+          pts: ach.pts,
+          isNew: true,
+        };
+        state.points += ach.pts;
+        newlyUnlocked.push(ach);
+      }
+    } catch(e) {}
+  }
+
+  if (newlyUnlocked.length > 0) {
+    saveState(state);
+    newAchsSinceLastView += newlyUnlocked.length;
+    achQueue.push(...newlyUnlocked);
+    updateTrophyBtn();
+    if (!achShowing) showNextAch();
+  }
+}
+
+function showNextAch() {
+  if (achQueue.length === 0) { achShowing = false; return; }
+  achShowing = true;
+  const ach = achQueue.shift();
+
+  document.getElementById('ach-icon').textContent = ach.icon;
+  document.getElementById('ach-title').textContent = ach.title;
+  document.getElementById('ach-desc').textContent = ach.desc;
+  document.getElementById('ach-pts').textContent = ach.pts > 0 ? `+${ach.pts} Forge Points` : 'No points — but noted.';
+
+  document.getElementById('ach-overlay').classList.add('show');
+}
+
+function dismissAch() {
+  document.getElementById('ach-overlay').classList.remove('show');
+  setTimeout(() => {
+    if (achQueue.length > 0) showNextAch();
+    else achShowing = false;
+  }, 350);
+}
+
+function updateTrophyBtn() {
+  const btn = document.getElementById('trophy-btn');
+  const count = document.getElementById('trophy-count');
+  if (newAchsSinceLastView > 0) {
+    btn.classList.add('has-new');
+    count.textContent = newAchsSinceLastView;
+  } else {
+    btn.classList.remove('has-new');
+  }
+}
+
+function openAchPanel() {
+  newAchsSinceLastView = 0;
+  updateTrophyBtn();
+  // Mark all as seen
+  if (state.achievements) {
+    Object.values(state.achievements).forEach(a => a.isNew = false);
+    saveState(state);
+  }
+  renderAchPanel();
+  const panel = document.getElementById('ach-panel');
+  panel.style.display = 'flex';
+  requestAnimationFrame(() => panel.classList.add('open'));
+}
+
+function closeAchPanel() {
+  const panel = document.getElementById('ach-panel');
+  panel.classList.remove('open');
+  setTimeout(() => panel.style.display = 'none', 300);
+}
+
+function renderAchPanel() {
+  const list = document.getElementById('ach-list');
+  const footer = document.getElementById('ach-panel-footer');
+  const earned = state.achievements ? Object.entries(state.achievements) : [];
+
+  if (earned.length === 0) {
+    list.innerHTML = `<div class="ach-empty">No feats yet.<br>Enter the Forge and see what fires.</div>`;
+    footer.textContent = '0 feats earned';
+    return;
+  }
+
+  // Sort newest first
+  earned.sort((a,b) => b[1].date.localeCompare(a[1].date));
+
+  list.innerHTML = earned.map(([id, ach]) => `
+    <div class="ach-item ${ach.isNew?'new-ach':''}">
+      <div class="ach-item-icon">${ach.icon}</div>
+      <div class="ach-item-body">
+        <div class="ach-item-name">${ach.title}</div>
+        <div class="ach-item-desc">${ach.desc}</div>
+        <div class="ach-item-date">${ach.date}${ach.pts>0?' · +'+ach.pts+' pts':''}</div>
+      </div>
+    </div>
+  `).join('');
+
+  footer.textContent = `${earned.length} of ${ACHIEVEMENTS.length} feats earned`;
+}
+
+// ─────────────────────────────────────────────
+// QUEST ENGINE
+// ─────────────────────────────────────────────
+
+const WEIGHT_GOAL = 100;
+const STARTING_WEIGHT = 105.5;
+
+// Gear drops pool
+const GEAR_DROPS = {
+  weekly: [
+    { name: 'Wraps of Consistency',    desc: 'Your hands know the routine now.' },
+    { name: 'Belt of Iron Habit',       desc: 'It fits a little differently each week.' },
+    { name: 'Boots of the Grind',       desc: 'Worn. Reliable. Still going.' },
+    { name: 'Gloves of the Forge',      desc: 'You earned the calluses.' },
+    { name: 'Helm of Unbroken Will',    desc: 'Three times. Every week. No excuses.' },
+    { name: 'Shoulderguard of Routine', desc: 'Boring to others. Sacred to you.' },
+  ],
+  wild: [
+    { name: 'Cloak of Opportunism',   desc: 'You saw the window. You jumped through it.' },
+    { name: 'Ring of Serendipity',    desc: 'The quest appeared. You answered.' },
+    { name: 'Amulet of Adaptability', desc: "Didn't plan for this. Did it anyway." },
+    { name: 'Boots of the Wanderer',  desc: 'Always ready for an unexpected road.' },
+  ],
+  epic: [
+    { name: 'Mantle of the Forged',   desc: 'Five kilograms shed. The armour fits better.' },
+    { name: 'Crown of the Lightened', desc: 'The weight you carry is now chosen, not given.' },
+    { name: 'The 100kg Seal',         desc: 'You said you would. You did. The Forge remembers everything.' },
+  ],
+};
+
+// Wildcard quest pool
+const WILDCARD_POOL = [
+  { id:'wc_steps_2day',   title:'The Long Road',        desc:'Hit 10,000 steps two days in a row.',         pts:12, icon:'🚶', durationDays:2,
+    check:(s,issued) => { let c=0; for(let i=0;i<2;i++){const d=new Date();d.setDate(d.getDate()-i); const day=s.days[localDateStr(d)]; if(day&&(day.steps||0)>=10000)c++;} return c>=2; } },
+  { id:'wc_early_log',    title:'Dawn Protocol',         desc:'Log your day before 9am — any day this week.',pts:10, icon:'🌅', durationDays:3,
+    check:(s,issued) => { const now=new Date(); const h=now.getHours(); return h<9 && !!s.days[getTodayStr()] && getTodayStr()>=issued; } },
+  { id:'wc_vitality_3',   title:'Three Clean Days',      desc:'Log Vitality three days running.',             pts:10, icon:'🥗', durationDays:4,
+    check:(s,issued) => { let c=0; for(let i=0;i<3;i++){const d=new Date();d.setDate(d.getDate()-i);const day=s.days[localDateStr(d)];if(day&&day.checks&&day.checks.vitality)c++;} return c>=3; } },
+  { id:'wc_perfect_1',    title:'One Perfect Day',       desc:'Log a Perfect Day before this expires.',       pts:15, icon:'🔥', durationDays:3,
+    check:(s,issued) => { return Object.entries(s.days).some(([k,d])=>k>=issued&&d.perfect); } },
+  { id:'wc_intel_3',      title:'The Reading Week',      desc:'Log Intelligence three days in a row.',        pts:10, icon:'📖', durationDays:4,
+    check:(s,issued) => { let c=0; for(let i=0;i<3;i++){const d=new Date();d.setDate(d.getDate()-i);const day=s.days[localDateStr(d)];if(day&&day.checks&&day.checks.intelligence)c++;} return c>=3; } },
+  { id:'wc_log_4',        title:'Show Up',               desc:'Log any four of the next five days.',          pts:12, icon:'📅', durationDays:5,
+    check:(s,issued) => { let c=0; const start=new Date(issued); for(let i=0;i<5;i++){const d=new Date(start);d.setDate(start.getDate()+i);if(s.days[localDateStr(d)])c++;} return c>=4; } },
+  { id:'wc_steps_15k',    title:'Overachiever (Steps)',  desc:'Hit 15,000 steps in a single day.',            pts:12, icon:'🏃', durationDays:3,
+    check:(s,issued) => { return Object.entries(s.days).some(([k,d])=>k>=issued&&(d.steps||0)>=15000); } },
+  { id:'wc_strength_2',   title:'Back in the Iron',      desc:'Train twice in the next three days.',          pts:10, icon:'💪', durationDays:3,
+    check:(s,issued) => { let c=0; const start=new Date(issued); for(let i=0;i<3;i++){const d=new Date(start);d.setDate(start.getDate()+i);const day=s.days[localDateStr(d)];if(day&&day.checks&&day.checks.strength)c++;} return c>=2; } },
+];
+
+function getMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  d.setDate(d.getDate() - ((day + 6) % 7));
+  return localDateStr(d);
+}
+
+function initQuests() {
+  if (!state.quests) state.quests = {};
+  if (!state.gear) state.gear = [];
+
+  const monday = getMonday(new Date());
+
+  // Weekly quest: 3 workouts this week
+  if (!state.quests.weekly || state.quests.weekly.weekStart !== monday) {
+    // Don't overwrite if same week
+    if (!state.quests.weekly || state.quests.weekly.weekStart !== monday) {
+      state.quests.weekly = {
+        weekStart: monday,
+        completed: false,
+        rewardClaimed: false,
+      };
+    }
+  }
+
+  // Epic quest: reach 100kg
+  if (!state.quests.epic) {
+    state.quests.epic = { completed: false, rewardClaimed: false };
+  }
+
+  // One-time fix: clear gear and epic milestone earned from timezone bug
+  // Remove gear items earned from epic quest if milestone wasn't legitimately reached
+  if (state.quests && state.quests.epic) {
+    const wl = getWeightLog().filter(w => w.weight > 50 && w.weight < 300);
+    const latest = wl.length > 0 ? wl[wl.length - 1].weight : STARTING_WEIGHT;
+    const kg_lost = STARTING_WEIGHT - latest;
+
+    // Reset completed flag if weight goal hasn't actually been reached
+    if (state.quests.epic.completed && latest > WEIGHT_GOAL) {
+      state.quests.epic.completed = false;
+      state.quests.epic.rewardClaimed = false;
+      // Refund the 100 false points
+      state.points = Math.max(0, state.points - 100);
+    }
+
+    // If milestone5 gear was awarded but not earned, strip it and reset flag
+    if (kg_lost < 5 && state.gear) {
+      const epicGearNames = GEAR_DROPS.epic.map(g => g.name);
+      const beforeCount = state.gear.length;
+      state.gear = state.gear.filter(g => !(g.type === 'epic' && epicGearNames.includes(g.name)));
+      if (state.gear.length < beforeCount) {
+        state.points = Math.max(0, state.points - 25);
+        state.quests.epic.milestone5 = false;
+        saveState(state);
+      }
+    }
+
+    saveState(state);
+  }
+
+  // Wildcard: issue one every ~3 days if none active
+  maybeIssueWildcard();
+
+  saveState(state);
+}
+
+function maybeIssueWildcard() {
+  const wc = state.quests.wildcard;
+  const today = getTodayStr();
+
+  // Active and not expired — do nothing
+  if (wc && !wc.completed && wc.expires >= today) return;
+  // Completed but reward not yet shown — do nothing
+  if (wc && wc.completed && !wc.rewardClaimed) return;
+
+  // Expired and incomplete — show failure notification, then issue new one
+  if (wc && !wc.completed && wc.expires < today && !wc.failShown) {
+    const def = WILDCARD_POOL.find(w => w.id === wc.wcId);
+    if (def) {
+      wc.failShown = true;
+      questQueue.push({
+        icon: '💀',
+        title: 'Quest Failed',
+        quest: def.title,
+        reward: 'No reward. The Forge noticed.',
+        gear: null,
+        isFail: true,
+      });
+      if (!questShowing) showNextQuest();
+    }
+    // Fall through to issue a new wildcard immediately
+  }
+
+  // Issue a new wildcard — no cooldown after expiry, only after completion
+  const lastCompleted = wc && wc.completed ? wc.issued : null;
+  if (lastCompleted) {
+    const daysSince = Math.floor((new Date(today) - new Date(lastCompleted)) / 86400000);
+    if (daysSince < 3) return;
+  }
+
+  // Pick a random wildcard not recently used
+  const recentIds = state.quests.wildcard ? [state.quests.wildcard.wcId] : [];
+  const pool = WILDCARD_POOL.filter(w => !recentIds.includes(w.id));
+  const source = pool.length > 0 ? pool : WILDCARD_POOL;
+  const pick = source[Math.floor(Math.random() * source.length)];
+
+  const expires = new Date(today);
+  expires.setDate(expires.getDate() + pick.durationDays);
+
+  state.quests.wildcard = {
+    wcId: pick.id,
+    issued: today,
+    expires: localDateStr(expires),
+    completed: false,
+    rewardClaimed: false,
+    failShown: false,
+  };
+
+  saveState(state);
+}
+
+function checkQuests() {
+  let anyCompleted = false;
+  const queue = [];
+
+  // ── WEEKLY ──
+  const wq = state.quests.weekly;
+  if (wq && !wq.completed) {
+    const workouts = countWeeklyWorkouts();
+    if (workouts >= 3) {
+      wq.completed = true;
+      wq.rewardClaimed = false;
+      const gear = pickGear('weekly');
+      state.points += 20;
+      state.gear.push(gear);
+      queue.push({
+        icon: '💪',
+        title: 'Quest Complete',
+        quest: 'Iron Discipline — 3 Workouts This Week',
+        reward: '+20 Forge Points',
+        gear,
+      });
+    }
+  }
+
+  // ── EPIC ──
+  const eq = state.quests.epic;
+  const wl = getWeightLog().filter(w => w.weight > 50 && w.weight < 300); // sanity check
+  if (eq && !eq.completed && wl.length > 0) {
+    // Use most recent entry by date, not just last array element
+    const latest = wl[wl.length - 1].weight;
+    const kg_lost = STARTING_WEIGHT - latest;
+    if (latest <= WEIGHT_GOAL) {
+      eq.completed = true;
+      const gear = pickGear('epic');
+      state.points += 100;
+      state.gear.push(gear);
+      queue.push({
+        icon: '👑',
+        title: 'Epic Quest Complete',
+        quest: 'The Long Descent — Reach 100kg',
+        reward: '+100 Forge Points',
+        gear,
+      });
+    } else if (!eq.milestone5 && kg_lost >= 5) {
+      eq.milestone5 = true;
+      const gear = pickGear('epic');
+      state.points += 25;
+      state.gear.push(gear);
+      queue.push({
+        icon: '⚖️',
+        title: 'Milestone Reached',
+        quest: 'The Long Descent — 5kg Lost',
+        reward: '+25 Forge Points',
+        gear,
+      });
+    }
+  }
+
+  // ── WILDCARD ──
+  const wcq = state.quests.wildcard;
+  if (wcq && !wcq.completed && wcq.expires >= getTodayStr()) {
+    const def = WILDCARD_POOL.find(w => w.id === wcq.wcId);
+    if (def && def.check(state, wcq.issued)) {
+      wcq.completed = true;
+      wcq.rewardClaimed = false;
+      const gear = pickGear('wild');
+      state.points += def.pts;
+      state.gear.push(gear);
+      queue.push({
+        icon: def.icon,
+        title: 'Wildcard Complete',
+        quest: def.title,
+        reward: `+${def.pts} Forge Points`,
+        gear,
+      });
+    }
+  }
+
+  if (queue.length > 0) {
+    saveState(state);
+    questQueue.push(...queue);
+    if (!questShowing) showNextQuest();
+  }
+}
+
+function countWeeklyWorkouts() {
+  const monday = getMonday(new Date());
+  let count = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    const key = localDateStr(d);
+    const day = state.days[key];
+    if (day && day.checks && day.checks.strength) count++;
+  }
+  return count;
+}
+
+function pickGear(type) {
+  const pool = GEAR_DROPS[type];
+  const owned = (state.gear || []).map(g => g.name);
+  const available = pool.filter(g => !owned.includes(g.name));
+  const source = available.length > 0 ? available : pool;
+  return { ...source[Math.floor(Math.random() * source.length)], type, date: getTodayStr() };
+}
+
+// Quest interrupt queue
+let questQueue = [];
+let questShowing = false;
+
+function showNextQuest() {
+  if (questQueue.length === 0) { questShowing = false; return; }
+  questShowing = true;
+  const q = questQueue.shift();
+
+  const overlay = document.getElementById('quest-overlay');
+  const interrupt = overlay.querySelector('.quest-interrupt');
+
+  // Style differently for failures vs completions
+  if (q.isFail) {
+    interrupt.style.borderColor = '#5a3a3a';
+    interrupt.style.borderTopColor = '#8b2a2a';
+  } else {
+    interrupt.style.borderColor = 'var(--green-bright)';
+    interrupt.style.borderTopColor = 'var(--green-bright)';
+  }
+
+  document.getElementById('qi-icon').textContent = q.icon;
+  document.getElementById('qi-title').textContent = q.title;
+  document.getElementById('qi-quest').textContent = q.quest;
+  document.getElementById('qi-reward').innerHTML = q.isFail
+    ? `<span style="color:var(--text-dim);font-style:italic">${q.reward}</span>`
+    : `<strong>${q.reward}</strong>`;
+  document.getElementById('qi-gear').textContent = q.gear
+    ? `🎁 Gear Drop: ${q.gear.name} — "${q.gear.desc}"`
+    : q.isFail ? '— A new wildcard quest has been issued.' : '';
+
+  const dismissBtn = overlay.querySelector('.quest-dismiss-btn');
+  dismissBtn.textContent = q.isFail ? 'Acknowledged.' : 'Claim Reward';
+  dismissBtn.style.borderColor = q.isFail ? '#5a3a3a' : 'var(--green)';
+  dismissBtn.style.color = q.isFail ? '#e05050' : 'var(--green-bright)';
+
+  overlay.classList.add('show');
+}
+
+function dismissQuest() {
+  document.getElementById('quest-overlay').classList.remove('show');
+  setTimeout(() => {
+    if (questQueue.length > 0) showNextQuest();
+    else { questShowing = false; renderAll(); }
+  }, 350);
+}
+
+function renderQuests() {
+  const container = document.getElementById('quests-container');
+  if (!state.quests) { container.innerHTML = ''; return; }
+
+  const cards = [];
+
+  // ── EPIC ──
+  const eq = state.quests.epic || {};
+  const wlog = getWeightLog();
+  const latest = wlog.length > 0 ? wlog[wlog.length - 1].weight : STARTING_WEIGHT;
+  const lost = Math.max(0, STARTING_WEIGHT - latest);
+  const remaining = Math.max(0, latest - WEIGHT_GOAL);
+  const epicPct = Math.min(100, (lost / (STARTING_WEIGHT - WEIGHT_GOAL)) * 100);
+  cards.push(`
+    <div class="quest-card epic ${eq.completed ? 'complete' : ''}">
+      <div class="quest-eyebrow epic">${eq.completed ? '✓ complete' : '⚔ epic quest'}</div>
+      <div class="quest-title">The Long Descent</div>
+      <div class="quest-desc">Reach 100kg. Current: ${latest}kg — ${remaining > 0 ? remaining.toFixed(1) + 'kg to go' : 'Goal reached'}.</div>
+      <div class="quest-bar-track"><div class="quest-bar-fill ${eq.completed?'complete':'epic'}" style="width:${epicPct}%"></div></div>
+      <div class="quest-meta">
+        <span>${lost.toFixed(1)}kg lost of ${(STARTING_WEIGHT - WEIGHT_GOAL).toFixed(1)}kg total</span>
+        <span class="quest-reward">${eq.completed ? '✓ Claimed' : '+100 pts + Gear on completion'}</span>
+      </div>
+    </div>
+  `);
+
+  // ── WEEKLY ──
+  const wq = state.quests.weekly || {};
+  const workouts = countWeeklyWorkouts();
+  const weekPct = Math.min(100, (workouts / 3) * 100);
+  const daysLeft = 7 - ((new Date().getDay() + 6) % 7);
+  cards.push(`
+    <div class="quest-card weekly ${wq.completed ? 'complete' : ''}">
+      <div class="quest-eyebrow weekly">${wq.completed ? '✓ complete' : '⚒ weekly quest'}</div>
+      <div class="quest-title">Iron Discipline</div>
+      <div class="quest-desc">Train three times this week. Strength must be checked in the daily log.</div>
+      <div class="quest-bar-track"><div class="quest-bar-fill ${wq.completed?'complete':'weekly'}" style="width:${weekPct}%"></div></div>
+      <div class="quest-meta">
+        <span>${workouts} / 3 workouts${wq.completed ? '' : ` · ${daysLeft} days left`}</span>
+        <span class="quest-reward">${wq.completed ? '✓ Claimed' : '+20 pts + Gear'}</span>
+      </div>
+    </div>
+  `);
+
+  // ── WILDCARD ──
+  const wcq = state.quests.wildcard;
+  if (wcq) {
+    const def = WILDCARD_POOL.find(w => w.id === wcq.wcId);
+    if (def) {
+      const expired = wcq.expires < getTodayStr() && !wcq.completed;
+      const daysToExp = Math.max(0, Math.ceil((new Date(wcq.expires) - new Date(getTodayStr())) / 86400000));
+      cards.push(`
+        <div class="quest-card wild ${wcq.completed ? 'complete' : ''}" style="${expired ? 'opacity:0.4' : ''}">
+          <div class="quest-eyebrow wild">${wcq.completed ? '✓ complete' : expired ? '✗ expired' : '⚡ wildcard'}</div>
+          <div class="quest-title">${def.icon} ${def.title}</div>
+          <div class="quest-desc">${def.desc}</div>
+          <div class="quest-bar-track"><div class="quest-bar-fill ${wcq.completed?'complete':'wild'}" style="width:${wcq.completed?100:0}%"></div></div>
+          <div class="quest-meta">
+            ${wcq.completed
+              ? '<span class="quest-complete-badge">✓ Complete</span>'
+              : expired
+                ? '<span style="color:var(--text-faint)">Expired</span>'
+                : `<span class="quest-expires">Expires in ${daysToExp} day${daysToExp!==1?'s':''}</span>`
+            }
+            <span class="quest-reward">${wcq.completed ? '✓ Claimed' : `+${def.pts} pts + Gear`}</span>
+          </div>
+        </div>
+      `);
+    }
+  }
+
+  // Gear count
+  const gearCount = (state.gear || []).length;
+  document.getElementById('quests-label').textContent = gearCount > 0 ? `${gearCount} gear collected` : '';
+
+  container.innerHTML = cards.join('');
+}
+
+// ─────────────────────────────────────────────
+// GEAR SCREEN
+// ─────────────────────────────────────────────
+
+const SLOT_DEFS = [
+  { id: 'head',     label: 'Head',     icon: '🪖', types: ['epic'] },
+  { id: 'chest',    label: 'Chest',    icon: '🥋', types: ['weekly', 'epic'] },
+  { id: 'hands',    label: 'Hands',    icon: '🧤', types: ['weekly', 'wild'] },
+  { id: 'waist',    label: 'Waist',    icon: '🔗', types: ['weekly'] },
+  { id: 'feet',     label: 'Feet',     icon: '👟', types: ['weekly', 'wild', 'epic'] },
+  { id: 'neck',     label: 'Neck',     icon: '📿', types: ['wild'] },
+  { id: 'ring',     label: 'Ring',     icon: '💍', types: ['wild'] },
+  { id: 'back',     label: 'Back',     icon: '🧣', types: ['wild'] },
+  { id: 'shoulder', label: 'Shoulder', icon: '🛡️', types: ['weekly'] },
+  { id: 'seal',     label: 'Seal',     icon: '🔱', types: ['epic'] },
+];
+
+// Map gear names to slots by keyword
+function inferSlot(gearName) {
+  const n = gearName.toLowerCase();
+  if (n.includes('helm') || n.includes('crown') || n.includes('hood')) return 'head';
+  if (n.includes('mantle') || n.includes('cloak') || n.includes('back')) return 'back';
+  if (n.includes('shoulder')) return 'shoulder';
+  if (n.includes('glove') || n.includes('wrap') || n.includes('hand')) return 'hands';
+  if (n.includes('belt') || n.includes('waist') || n.includes('girdle')) return 'waist';
+  if (n.includes('boot') || n.includes('feet') || n.includes('greave') || n.includes('sabatons')) return 'feet';
+  if (n.includes('ring')) return 'ring';
+  if (n.includes('amulet') || n.includes('neck') || n.includes('chain') || n.includes('pendant')) return 'neck';
+  if (n.includes('seal') || n.includes('sigil') || n.includes('crest')) return 'seal';
+  return 'chest'; // fallback
+}
+
+function getGearIcon(type) {
+  const icons = { weekly: '⚔️', wild: '⚡', epic: '👑' };
+  return icons[type] || '🎁';
+}
+
+function openGearScreen() {
+  renderGearScreen();
+  document.getElementById('gear-screen').classList.add('open');
+  window.scrollTo(0, 0);
+}
+
+function closeGearScreen() {
+  document.getElementById('gear-screen').classList.remove('open');
+}
+
+function updateGearNavBtn() {
+  const count = (state.gear || []).length;
+  const btn = document.getElementById('gear-nav-btn');
+  const badge = document.getElementById('gear-nav-count');
+  if (count > 0) {
+    btn.style.borderColor = 'var(--gold)';
+    btn.style.color = 'var(--gold)';
+    badge.style.display = 'inline';
+    badge.style.background = 'var(--gold)';
+    badge.textContent = count;
+  }
+}
+
+function renderGearScreen() {
+  const gear = state.gear || [];
+  const total = gear.length;
+
+  document.getElementById('gear-count-badge').textContent =
+    total === 0 ? 'No gear yet' : `${total} item${total !== 1 ? 's' : ''} collected`;
+
+  // ── EQUIPPED SLOTS ──
+  // For each slot, find the most recently earned gear that maps to it
+  const slotMap = {};
+  [...gear].reverse().forEach(g => {
+    const slot = inferSlot(g.name);
+    if (!slotMap[slot]) slotMap[slot] = g;
+  });
+
+  const slotsEl = document.getElementById('equipped-slots');
+  slotsEl.innerHTML = SLOT_DEFS.map(slot => {
+    const equipped = slotMap[slot.id];
+    if (equipped) {
+      return `
+        <div class="gear-slot filled">
+          <div class="slot-type">${slot.label}</div>
+          <div class="slot-icon">${getGearIcon(equipped.type)}</div>
+          <div class="slot-name">${equipped.name}</div>
+          <div class="slot-desc">${equipped.desc}</div>
+          <div class="slot-source">${sourceLabel(equipped.type)} · ${equipped.date}</div>
+        </div>`;
+    } else {
+      return `
+        <div class="gear-slot empty">
+          <div class="slot-type">${slot.label}</div>
+          <div class="slot-icon" style="opacity:0.3">${slot.icon}</div>
+          <div class="slot-empty-label">— empty —</div>
+        </div>`;
+    }
+  }).join('');
+
+  // ── FULL STASH ──
+  const stashEl = document.getElementById('stash-grid');
+  if (gear.length === 0) {
+    stashEl.innerHTML = `
+      <div class="stash-empty">
+        <div style="font-size:40px;margin-bottom:12px">⚔️</div>
+        Your stash is empty.<br>
+        Complete quests to earn gear drops.<br>
+        <span style="font-size:12px;color:var(--text-faint)">The Forge provides. Eventually.</span>
+      </div>`;
+    return;
+  }
+
+  // Show newest first
+  stashEl.innerHTML = [...gear].reverse().map(g => `
+    <div class="stash-item type-${g.type}">
+      <div class="stash-icon">${getGearIcon(g.type)}</div>
+      <div class="stash-body">
+        <div class="stash-name">${g.name}</div>
+        <div class="stash-desc">${g.desc}</div>
+        <div class="stash-meta">${g.date}</div>
+        <span class="gear-type-tag tag-${g.type}">${sourceLabel(g.type)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function sourceLabel(type) {
+  return { weekly: 'Weekly Quest', wild: 'Wildcard', epic: 'Epic Quest' }[type] || 'Quest';
+}
+
+// ─────────────────────────────────────────────
+// HISTORY SCREEN
+// ─────────────────────────────────────────────
+
+let histTab = '7';
+
+const ATTR_DEFS = [
+  { key: 'vitality',      icon: '❤️',  label: 'Vitality' },
+  { key: 'influence',     icon: '🗣️',  label: 'Influence' },
+  { key: 'strength',      icon: '💪',  label: 'Strength' },
+  { key: 'constitution',  icon: '🛡️',  label: 'Constit.' },
+  { key: 'intelligence',  icon: '🧠',  label: 'Intel.' },
+];
+
+function openHistoryScreen() {
+  renderHistoryScreen();
+  document.getElementById('history-screen').classList.add('open');
+  window.scrollTo(0, 0);
+}
+
+function closeHistoryScreen() {
+  document.getElementById('history-screen').classList.remove('open');
+}
+
+function setHistTab(tab) {
+  histTab = tab;
+  ['7','30','weeks'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  renderHistoryContent();
+}
+
+function renderHistoryScreen() {
+  renderHistoryContent();
+}
+
+function renderHistoryContent() {
+  const container = document.getElementById('history-content');
+  const today = getTodayStr();
+
+  if (histTab === '7' || histTab === '30') {
+    const days = histTab === '7' ? 7 : 30;
+    // Build date list newest first
+    const dates = [];
+    for (let i = 0; i < days; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dates.push(localDateStr(d));
+    }
+    // Group into weeks
+    const weeks = groupByWeek(dates);
+    container.innerHTML = weeks.map((week, wi) =>
+      renderWeekBlock(week, wi === 0)
+    ).join('');
+  } else {
+    // All weeks with data
+    const allDates = Object.keys(state.days).sort().reverse();
+    if (allDates.length === 0) {
+      container.innerHTML = `<div class="hist-empty">No days logged yet.<br>Enter the Forge to begin.</div>`;
+      return;
+    }
+    // Build full weeks from earliest to latest
+    const earliest = allDates[allDates.length - 1];
+    const weeks = buildAllWeeks(earliest, today);
+    container.innerHTML = weeks.map((week, wi) =>
+      renderWeekBlock(week, wi === 0)
+    ).join('');
+  }
+
+  // Attach toggle listeners
+  document.querySelectorAll('.week-block-header').forEach(h => {
+    h.addEventListener('click', () => {
+      h.closest('.week-block').classList.toggle('expanded');
+    });
+  });
+}
+
+function groupByWeek(dates) {
+  // Group a flat date list into week buckets (Mon–Sun)
+  const weekMap = {};
+  dates.forEach(d => {
+    const monday = getMonday(new Date(d + 'T12:00:00'));
+    if (!weekMap[monday]) weekMap[monday] = [];
+    weekMap[monday].push(d);
+  });
+  // Sort each week's days newest first, return weeks newest first
+  return Object.entries(weekMap)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([monday, days]) => ({ monday, days: days.sort((a,b) => b.localeCompare(a)) }));
+}
+
+function buildAllWeeks(earliest, latest) {
+  // Build complete Mon–Sun week buckets from earliest logged day to today
+  const weeks = [];
+  let cursor = new Date(getMonday(new Date(earliest + 'T12:00:00')) + 'T12:00:00');
+  const end = new Date(latest + 'T12:00:00');
+
+  while (cursor <= end) {
+    const monday = cursorlocalDateStr(d);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(cursor);
+      d.setDate(cursor.getDate() + i);
+      days.push(localDateStr(d));
+    }
+    weeks.push({ monday, days: days.reverse() }); // newest first within week
+    cursor.setDate(cursor.getDate() + 7);
+  }
+  return weeks.reverse(); // newest week first
+}
+
+function renderWeekBlock(week, defaultExpanded) {
+  const today = getTodayStr();
+  const { monday, days } = week;
+
+  // Week label
+  const mondayDate = new Date(monday + 'T12:00:00');
+  const sunday = new Date(mondayDate);
+  sunday.setDate(mondayDate.getDate() + 6);
+  const fmt = d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const weekLabel = `${fmt(mondayDate)} – ${fmt(sunday)}`;
+
+  // Week stats: how many logged, how many per attr
+  const loggedDays = days.filter(d => state.days[d]);
+  const totalLogged = loggedDays.length;
+
+  // Attr completion rate (pips)
+  const attrCounts = ATTR_DEFS.map(a => {
+    const count = loggedDays.filter(d => state.days[d]?.checks?.[a.key]).length;
+    const tier = count === 0 ? 0 : count <= 2 ? 1 : count <= 4 ? 2 : count <= 6 ? 3 : 4;
+    return { ...a, count, tier };
+  });
+
+  // Steps and perfect count
+  const stepsHit = loggedDays.filter(d => (state.days[d]?.steps || 0) >= STEPS_TARGET).length;
+  const perfectCount = loggedDays.filter(d => state.days[d]?.perfect).length;
+
+  const pips = [...attrCounts, { key: 'stamina', count: stepsHit, tier: stepsHit >= 5 ? 4 : stepsHit >= 3 ? 2 : stepsHit >= 1 ? 1 : 0 }]
+    .map(a => `<div class="week-stat-pip ${a.count > 0 ? (a.tier >= 4 ? 'mythic' : 'done') : ''}"></div>`)
+    .join('');
+
+  const summaryText = totalLogged === 0
+    ? '<span style="font-size:10px;color:var(--text-faint);letter-spacing:1px">NO ENTRIES</span>'
+    : `<span style="font-size:10px;color:var(--text-faint);letter-spacing:1px;font-family:\'Barlow Condensed\',sans-serif">${totalLogged}/7 days${perfectCount > 0 ? ` · ${perfectCount}🔥` : ''}</span>`;
+
+  const dayRows = days.map(d => renderDayRow(d)).join('');
+
+  const isCurrentWeek = days.includes(today);
+  const expanded = defaultExpanded || isCurrentWeek;
+
+  return `
+    <div class="week-block ${expanded ? 'expanded' : ''}">
+      <div class="week-block-header">
+        <div class="week-block-title">${weekLabel}</div>
+        <div class="week-block-summary">
+          ${pips}
+          ${summaryText}
+        </div>
+        <div class="week-block-toggle">▼</div>
+      </div>
+      <div class="week-days">${dayRows}</div>
+    </div>`;
+}
+
+function renderDayRow(dateStr) {
+  const today = getTodayStr();
+  const day = state.days[dateStr];
+  const date = new Date(dateStr + 'T12:00:00');
+  const dow = date.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase();
+  const dateLabel = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const isToday = dateStr === today;
+  const isEmpty = !day;
+
+  // Editable if within last 30 days
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const isEditable = new Date(dateStr + 'T12:00:00') >= cutoff;
+
+  const attrPips = ATTR_DEFS.map(a => {
+    const done = day?.checks?.[a.key];
+    return `<span class="attr-pip ${done ? 'done' : ''}">${a.icon} ${a.label}</span>`;
+  }).join('');
+
+  const stepsOk = (day?.steps || 0) >= STEPS_TARGET;
+  const stepsPip = `<span class="attr-pip ${stepsOk ? 'steps-done' : ''}">${
+    day?.steps ? `🏃 ${day.steps.toLocaleString()}` : '🏃 —'
+  }</span>`;
+
+  const weightStr = day?.weight ? `${day.weight} kg` : '—';
+  const perfectPip = day?.perfect ? `<div class="day-perfect-pip">🔥 Perfect</div>` : '';
+  const editHint = isEditable ? `<span class="edit-hint">✎</span>` : '';
+
+  const clickAttr = isEditable ? `onclick="openRetroEntry('${dateStr}')"` : '';
+
+  return `
+    <div class="day-row ${isToday ? 'today-row' : ''} ${isEmpty ? 'empty-row' : ''} ${isEditable ? 'editable' : ''}" ${clickAttr}>
+      <div class="day-row-date">
+        <span class="dow">${dow}${isToday ? ' ·' : ''}</span>
+        ${dateLabel}
+      </div>
+      <div class="day-attrs">
+        ${isEmpty ? '<span style="font-size:11px;color:var(--text-faint);font-style:italic">Tap to log</span>'
+          : attrPips + stepsPip}
+      </div>
+      <div class="day-row-extras">
+        <div class="day-weight">${weightStr}</div>
+        ${day?.steps && !stepsOk ? `<div class="day-steps">${day.steps.toLocaleString()} steps</div>` : ''}
+        ${perfectPip}
+        ${editHint}
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+// RETROACTIVE ENTRY
+// ─────────────────────────────────────────────
+
+let retroDate = null;
+let retroSession = { checks: {}, steps: 0, weight: null };
+
+function openRetroEntry(dateStr) {
+  retroDate = dateStr;
+  const day = state.days[dateStr];
+  const date = new Date(dateStr + 'T12:00:00');
+  const label = date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  // Set header
+  document.getElementById('retro-date-label').textContent = label.toUpperCase();
+
+  // Init session from existing data or blank
+  retroSession = {
+    checks: { ...( day?.checks || {}) },
+    steps: day?.steps || 0,
+    weight: day?.weight || null,
+  };
+
+  // Populate checkboxes
+  ATTRS.forEach(a => retroUpdateCheck(a));
+
+  // Populate inputs
+  document.getElementById('retro-steps').value = retroSession.steps || '';
+  document.getElementById('retro-weight').value = retroSession.weight || '';
+
+  // Show clear button only if day has data
+  document.getElementById('retro-clear-btn').style.display = day ? 'block' : 'none';
+
+  // Open sheet
+  document.getElementById('retro-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function retroOverlayTap(e) {
+  if (e.target === document.getElementById('retro-overlay')) closeRetroEntry();
+}
+
+function closeRetroEntry() {
+  document.getElementById('retro-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function retroToggle(attr) {
+  retroSession.checks[attr] = !retroSession.checks[attr];
+  retroUpdateCheck(attr);
+}
+
+function retroUpdateCheck(attr) {
+  const row = document.getElementById('retro-row-' + attr);
+  const box = document.getElementById('retro-check-' + attr);
+  if (retroSession.checks[attr]) {
+    row.classList.add('checked');
+    box.textContent = '✓';
+  } else {
+    row.classList.remove('checked');
+    box.textContent = '';
+  }
+}
+
+function retroSave() {
+  if (!retroDate) return;
+
+  const steps = parseInt(document.getElementById('retro-steps').value) || 0;
+  const weight = parseFloat(document.getElementById('retro-weight').value) || null;
+  const checks = { ...retroSession.checks };
+  const stepsOk = steps >= STEPS_TARGET;
+  const totalChecks = ATTRS.filter(a => checks[a]).length;
+  const isPerfect = totalChecks >= 4 && stepsOk;
+  const isToday = retroDate === getTodayStr();
+
+  // If editing today, update live session too
+  if (isToday) {
+    session.checks = { ...checks };
+    session.steps = steps;
+    session.weight = weight;
+  }
+
+  // Points delta — remove old, add new
+  const old = state.days[retroDate];
+  if (old) {
+    const oldChecks = ATTRS.filter(a => old.checks?.[a]).length;
+    const oldSteps = (old.steps || 0) >= STEPS_TARGET;
+    const oldPoints = oldChecks + (oldSteps ? 1 : 0) + (old.perfect ? 3 : 0);
+    state.points = Math.max(0, state.points - oldPoints);
+  }
+  const newPoints = totalChecks + (stepsOk ? 1 : 0) + (isPerfect ? 3 : 0);
+  state.points += newPoints;
+
+  // Save day record
+  state.days[retroDate] = { checks, steps, weight, perfect: isPerfect };
+
+  // Sync weightLog
+  state.weightLog = Object.entries(state.days)
+    .filter(([, d]) => d.weight !== null && d.weight !== undefined)
+    .map(([date, d]) => ({ date, weight: d.weight }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  saveState(state);
+  checkAchievements();
+  checkQuests();
+
+  closeRetroEntry();
+  renderHistoryContent();
+  renderAll();
+  showToast(`⚔ ${new Date(retroDate + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} — entry saved.`);
+}
+
+function retroClear() {
+  if (!retroDate) return;
+
+  const old = state.days[retroDate];
+  if (old) {
+    const oldChecks = ATTRS.filter(a => old.checks?.[a]).length;
+    const oldSteps = (old.steps || 0) >= STEPS_TARGET;
+    const oldPoints = oldChecks + (oldSteps ? 1 : 0) + (old.perfect ? 3 : 0);
+    state.points = Math.max(0, state.points - oldPoints);
+  }
+
+  delete state.days[retroDate];
+  state.weightLog = (state.weightLog || []).filter(w => w.date !== retroDate);
+  saveState(state);
+
+  closeRetroEntry();
+  renderHistoryContent();
+  renderAll();
+  showToast('⚔ Entry cleared.');
+}
+
+// ─────────────────────────────────────────────
+// GO
+// ─────────────────────────────────────────────
+init();
+window.addEventListener('resize', renderWeightGraph);
+</script>
+</body>
+</html>
