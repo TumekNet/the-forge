@@ -1371,6 +1371,55 @@ body {
   padding-right: max(16px, env(safe-area-inset-right));
   padding-bottom: max(60px, env(safe-area-inset-bottom, 60px));
 }
+
+/* ── EXPORT / IMPORT ── */
+.data-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.data-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+}
+.data-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.data-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 11px 16px;
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+  min-height: 44px;
+}
+.data-btn:active { border-color: var(--fire); color: var(--fire); }
+.data-btn.import-btn { border-color: var(--gold-dim); color: var(--gold-dim); }
+.data-btn.import-btn:active { border-color: var(--gold); color: var(--gold); }
+.data-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-style: italic;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
 .gear-screen {
   display: none;
   position: fixed;
@@ -1704,6 +1753,19 @@ body {
       <div>
         <div class="section-label">Full Stash</div>
         <div class="stash-grid" id="stash-grid"></div>
+      </div>
+
+      <!-- Data Management -->
+      <div class="data-section">
+        <div class="data-section-title">Data Management</div>
+        <div class="data-btns">
+          <button class="data-btn" onclick="exportData()">⬇ Export Backup</button>
+          <button class="data-btn import-btn" onclick="document.getElementById('import-file-input').click()">⬆ Import Backup</button>
+        </div>
+        <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(event)">
+        <div class="data-meta" id="data-meta">
+          Export saves a JSON file of all your data. Import restores from a previous export — your current data will be replaced.
+        </div>
       </div>
     </div>
   </div>
@@ -3771,6 +3833,103 @@ function retroClear() {
   renderHistoryContent();
   renderAll();
   showToast('⚔ Entry cleared.');
+}
+
+// ─────────────────────────────────────────────
+// EXPORT / IMPORT
+// ─────────────────────────────────────────────
+
+function exportData() {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    data: state,
+  };
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = localDateStr(new Date());
+  a.href = url;
+  a.download = `the-forge-backup-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  document.getElementById('data-meta').textContent = `✓ Backup exported — the-forge-backup-${date}.json`;
+  document.getElementById('data-meta').style.color = 'var(--green-bright)';
+  setTimeout(() => {
+    const el = document.getElementById('data-meta');
+    if (el) {
+      el.textContent = 'Export saves a JSON file of all your data. Import restores from a previous export — your current data will be replaced.';
+      el.style.color = '';
+    }
+  }, 4000);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+
+      // Support both raw state and wrapped export format
+      const imported = parsed.version === 1 ? parsed.data : parsed;
+
+      if (!imported.days) throw new Error('Invalid backup file — no days found.');
+
+      const dayCount = Object.keys(imported.days).length;
+
+      // Show confirmation using two-tap pattern (no confirm() dialog)
+      const meta = document.getElementById('data-meta');
+      meta.innerHTML = `Found <strong style="color:var(--text)">${dayCount} days</strong> of data from ${file.name}.<br>
+        <button onclick="doImport()" style="
+          margin-top:10px; padding:8px 16px;
+          background:rgba(200,149,42,0.1); border:1px solid var(--gold);
+          border-radius:var(--radius); font-family:'Barlow Condensed',sans-serif;
+          font-size:10px; letter-spacing:3px; text-transform:uppercase;
+          color:var(--gold); cursor:pointer; touch-action:manipulation;
+        ">⚠ Tap to confirm import</button>`;
+
+      // Store imported data temporarily
+      window._pendingImport = imported;
+
+    } catch (err) {
+      document.getElementById('data-meta').textContent = `✕ Import failed — ${err.message}`;
+      document.getElementById('data-meta').style.color = '#e05050';
+    }
+  };
+  reader.readAsText(file);
+  // Reset file input so same file can be re-selected
+  event.target.value = '';
+}
+
+function doImport() {
+  if (!window._pendingImport) return;
+  state = window._pendingImport;
+  window._pendingImport = null;
+
+  // Ensure all keys exist
+  if (!state.days) state.days = {};
+  if (!state.weightLog) state.weightLog = [];
+  if (!state.points) state.points = 0;
+
+  // Save locally and sync to Supabase
+  localStorage.setItem('forge_v1', JSON.stringify(state));
+  syncToSupabase(state);
+
+  const meta = document.getElementById('data-meta');
+  meta.textContent = `✓ Import complete — ${Object.keys(state.days).length} days restored.`;
+  meta.style.color = 'var(--green-bright)';
+
+  // Reinitialise the app with new data
+  init();
+  renderGearScreen();
+
+  showToast('⚔ Data imported successfully.');
 }
 
 // ─────────────────────────────────────────────
