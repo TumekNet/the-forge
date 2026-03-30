@@ -17,9 +17,9 @@
   --surface2: #212121;
   --border: #2a2a2a;
   --border-bright: #3a3a3a;
-  --text: #e8e8e8;
-  --text-dim: #c8c8c8;
-  --text-faint: #909090;
+  --text: #ffffff;
+  --text-dim: #e8e8e8;
+  --text-faint: #c0c0c0;
   --fire: #e8541a;
   --fire-dim: #7a2a0a;
   --fire-glow: rgba(232,84,26,0.15);
@@ -757,7 +757,7 @@ body {
 }
 .quest-eyebrow.epic   { color: var(--gold-dim); }
 .quest-eyebrow.weekly { color: var(--fire-dim); }
-.quest-eyebrow.wild   { color: #2a4a8e; }
+.quest-eyebrow.wild   { color: #6a9aee; }
 .quest-eyebrow.complete { color: var(--green); }
 
 .quest-title {
@@ -1523,6 +1523,16 @@ body {
   color: var(--text-faint);
   margin-bottom: 2px;
 }
+.stash-meta { color: var(--text-faint); }
+.ach-item-date { color: var(--text-faint); }
+.day-row-date { color: var(--text-dim); }
+.week-block-title { color: var(--text); }
+.hist-tab { color: var(--text-faint); }
+.hist-tab:hover { color: var(--text-dim); }
+.section-label { color: var(--text-faint); }
+.gear-count-badge { color: var(--text-faint); }
+.quest-eyebrow.epic { color: #c8952a; }
+.rank-label { color: var(--text-dim); }
 .slot-icon { font-size: 22px; margin-bottom: 4px; }
 .slot-name {
   font-family: 'Barlow Condensed', sans-serif;
@@ -2466,7 +2476,7 @@ function renderWeightGraph() {
     const y = PAD.top + (i/gridCount)*(H - PAD.top - PAD.bottom);
     const val = (maxW - (i/gridCount)*range).toFixed(1);
     gridSVG += `<line x1="${PAD.left}" y1="${y}" x2="${W-PAD.right}" y2="${y}" stroke="#2a2a2a" stroke-width="1"/>`;
-    gridSVG += `<text x="${PAD.left-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#555" font-family="Barlow Condensed,sans-serif">${val}</text>`;
+    gridSVG += `<text x="${PAD.left-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#a8a8a8" font-family="Barlow Condensed,sans-serif">${val}</text>`;
   }
 
   // Area fill
