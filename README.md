@@ -166,4 +166,4 @@ You don't fail. You either enter the Forge, or you don't.
 
 ---
 
-*Built in a single conversation with Claude. March 2026.*
+*Built with Claude. March 2026.*
