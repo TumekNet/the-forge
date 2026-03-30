@@ -1594,7 +1594,8 @@ body {
   <!-- HEADER -->
   <header class="header">
     <div class="logo">The <span>F</span>orge</div>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+      <span id="sync-indicator" style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);"></span>
       <div class="header-date" id="header-date"></div>
       <button class="trophy-btn" id="history-nav-btn" onclick="openHistoryScreen()" style="border-color:var(--border-bright);color:var(--text-dim);">
         📅 History
@@ -1949,16 +1950,117 @@ function todayKey() {
   return localDateStr(new Date());
 }
 
+// ─────────────────────────────────────────────
+// SUPABASE SYNC
+// ─────────────────────────────────────────────
+const SUPABASE_URL = 'https://sztchqnyiajndteqecds.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6dGNocW55aWFqbmR0ZXFlY2RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MTEyNTUsImV4cCI6MjA5MDM4NzI1NX0.WAe7zKiaJrinHyity_6fj3EVDhGzEjJegee8kFPta4nQ';
+const FORGE_ROW_ID = 'tumek'; // single row for your data
+
+let syncPending = false;
+let syncTimer = null;
+
 function loadState() {
+  // Load from localStorage as fast cache
   try { return JSON.parse(localStorage.getItem('forge_v1') || '{}'); } catch { return {}; }
 }
-function saveState(s) { localStorage.setItem('forge_v1', JSON.stringify(s)); }
 
-let state = loadState();
-// Ensure keys exist
-if (!state.days) state.days = {};       // { "2025-03-28": { checks:{}, steps:0, weight:null, perfect:false } }
-if (!state.weightLog) state.weightLog = []; // [{date, weight}]
-if (!state.points) state.points = 0;
+function saveState(s) {
+  // Always write to localStorage immediately
+  localStorage.setItem('forge_v1', JSON.stringify(s));
+  // Debounce Supabase writes — batch rapid saves into one
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => syncToSupabase(s), 1500);
+}
+
+async function syncToSupabase(s) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/forge_data?id=eq.${FORGE_ROW_ID}`, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    });
+    const existing = await res.json();
+
+    const payload = {
+      id: FORGE_ROW_ID,
+      data: s,
+      updated_at: new Date().toISOString(),
+    };
+
+    const method = existing && existing.length > 0 ? 'PATCH' : 'POST';
+    const url = method === 'PATCH'
+      ? `${SUPABASE_URL}/rest/v1/forge_data?id=eq.${FORGE_ROW_ID}`
+      : `${SUPABASE_URL}/rest/v1/forge_data`;
+
+    await fetch(url, {
+      method,
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=minimal' : 'return=minimal',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    updateSyncIndicator('synced');
+  } catch (err) {
+    console.error('Sync failed:', err);
+    updateSyncIndicator('error');
+  }
+}
+
+async function loadFromSupabase() {
+  try {
+    updateSyncIndicator('syncing');
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/forge_data?id=eq.${FORGE_ROW_ID}`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    });
+    const rows = await res.json();
+    if (rows && rows.length > 0 && rows[0].data) {
+      const remote = rows[0].data;
+      // Merge: remote wins if it has more days logged
+      const localDays = Object.keys(loadState().days || {}).length;
+      const remoteDays = Object.keys(remote.days || {}).length;
+      if (remoteDays >= localDays) {
+        localStorage.setItem('forge_v1', JSON.stringify(remote));
+        return remote;
+      }
+    }
+    updateSyncIndicator('synced');
+  } catch (err) {
+    console.error('Load from Supabase failed:', err);
+    updateSyncIndicator('offline');
+  }
+  return loadState();
+}
+
+function updateSyncIndicator(status) {
+  const el = document.getElementById('sync-indicator');
+  if (!el) return;
+  const states = {
+    syncing: { text: '↑ syncing', color: 'var(--text-faint)' },
+    synced:  { text: '✓ synced',  color: 'var(--green)' },
+    offline: { text: '◌ offline', color: 'var(--text-faint)' },
+    error:   { text: '✕ sync error', color: '#e05050' },
+  };
+  const s = states[status] || states.offline;
+  el.textContent = s.text;
+  el.style.color = s.color;
+  if (status === 'synced') {
+    setTimeout(() => { if (el.textContent === '✓ synced') el.textContent = ''; }, 3000);
+  }
+}
+
+let state = {};
 
 // Today's session (unsaved until submit)
 let session = {
@@ -3674,7 +3776,14 @@ function retroClear() {
 // ─────────────────────────────────────────────
 // GO
 // ─────────────────────────────────────────────
-init();
+(async () => {
+  // Load from Supabase first, fall back to localStorage
+  state = await loadFromSupabase();
+  if (!state.days) state.days = {};
+  if (!state.weightLog) state.weightLog = [];
+  if (!state.points) state.points = 0;
+  init();
+})();
 window.addEventListener('resize', renderWeightGraph);
 </script>
 </body>
