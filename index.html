@@ -1667,6 +1667,9 @@ body {
         🏆 <span>Feats</span>
         <span class="trophy-count" id="trophy-count">0</span>
       </button>
+      <button class="trophy-btn" id="notif-btn" onclick="requestNotificationPermission()" title="Daily reminder at 9pm">
+        🔔 Remind me
+      </button>
     </div>
   </header>
 
@@ -2363,6 +2366,7 @@ function submitDay() {
   saveState(state);
   checkAchievements();
   checkQuests();
+  notifyLoggedToday();
 
   document.getElementById('submit-btn').textContent = 'Forged ✓';
   document.getElementById('submit-btn').disabled = true;
@@ -3943,6 +3947,79 @@ function doImport() {
 }
 
 // ─────────────────────────────────────────────
+// SERVICE WORKER & NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    console.log('Forge SW registered:', reg.scope);
+
+    // Listen for CHECK_LOGGED messages from SW
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (e.data.type === 'CHECK_LOGGED') {
+        const today = getTodayStr();
+        const logged = !!state.days[today];
+        e.ports[0].postMessage({ logged });
+      }
+    });
+  } catch (err) {
+    console.warn('SW registration failed:', err);
+  }
+}
+
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    updateNotifBtn();
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    updateNotifBtn();
+    return;
+  }
+  // Ask for permission
+  const result = await Notification.requestPermission();
+  updateNotifBtn();
+  if (result === 'granted') {
+    showToast('🔔 Notifications enabled — The Forge will remind you at 9pm.');
+    // Tell SW to schedule
+    const sw = navigator.serviceWorker.controller;
+    if (sw) sw.postMessage({ type: 'SCHEDULE_CHECK' });
+  }
+}
+
+function updateNotifBtn() {
+  const btn = document.getElementById('notif-btn');
+  if (!btn) return;
+  if (!('Notification' in window)) {
+    btn.style.display = 'none';
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    btn.textContent = '🔔 9pm';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green-bright)';
+  } else if (Notification.permission === 'denied') {
+    btn.textContent = '🔕';
+    btn.style.color = 'var(--text-faint)';
+    btn.title = 'Notifications blocked — enable in browser settings';
+  } else {
+    btn.textContent = '🔔 Remind me';
+    btn.style.borderColor = 'var(--border-bright)';
+    btn.style.color = 'var(--text-dim)';
+  }
+}
+
+function notifyLoggedToday() {
+  // Tell SW user has logged — suppress tonight's notification
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'LOGGED_TODAY' });
+  }
+}
+
+// ─────────────────────────────────────────────
 // GO
 // ─────────────────────────────────────────────
 (async () => {
@@ -3952,6 +4029,8 @@ function doImport() {
   if (!state.weightLog) state.weightLog = [];
   if (!state.points) state.points = 0;
   init();
+  registerServiceWorker();
+  updateNotifBtn();
 })();
 window.addEventListener('resize', renderWeightGraph);
 </script>
