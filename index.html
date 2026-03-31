@@ -1312,7 +1312,183 @@ body {
   line-height: 1.8;
 }
 
-/* ── MOBILE / ANDROID FIXES ── */
+/* ── SERATH SCREEN ── */
+.serath-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #0a0a0e;
+  z-index: 120;
+  overflow-y: auto;
+  animation: gearScreenIn 0.3s ease;
+  -webkit-overflow-scrolling: touch;
+}
+.serath-screen.open { display: block; }
+
+.serath-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+.serath-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2a2035;
+}
+
+/* Portrait + dialogue */
+.serath-portrait-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+@media (max-width: 500px) {
+  .serath-portrait-wrap { flex-direction: column; align-items: center; }
+}
+
+.serath-portrait {
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  object-fit: cover;
+  object-position: top;
+  border: 1px solid #3a2a5a;
+  box-shadow: 0 0 40px rgba(120,80,200,0.2), 0 0 80px rgba(120,80,200,0.08);
+  display: block;
+}
+@media (max-width: 500px) {
+  .serath-portrait { width: 140px; height: 140px; }
+}
+
+.serath-dialogue-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+}
+.serath-name-plate {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #7a5aaa;
+  margin-bottom: 4px;
+}
+.serath-dialogue {
+  background: #0f0d18;
+  border: 1px solid #2a2040;
+  border-left: 2px solid #6a4aaa;
+  border-radius: 2px;
+  padding: 16px;
+  font-size: 15px;
+  color: #d8d0e8;
+  font-style: italic;
+  line-height: 1.7;
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 80px;
+}
+.serath-obs-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #4a3a6a;
+  margin-top: 4px;
+}
+
+/* Stats Serath observes */
+.serath-observations {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+@media (min-width: 600px) {
+  .serath-observations { grid-template-columns: repeat(3, 1fr); }
+}
+.obs-card {
+  background: #0d0b16;
+  border: 1px solid #1e1830;
+  border-radius: 2px;
+  padding: 12px 14px;
+}
+.obs-card-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #4a3a6a;
+  margin-bottom: 4px;
+}
+.obs-card-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #b8a0d8;
+}
+.obs-card-sub {
+  font-size: 11px;
+  color: #6a5a8a;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* Chronicle of observations */
+.serath-chronicle {
+  border-top: 1px solid #1e1830;
+  padding-top: 20px;
+}
+.serath-chronicle-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #4a3a6a;
+  margin-bottom: 12px;
+}
+.serath-entry {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #1a1428;
+}
+.serath-entry:last-child { border-bottom: none; }
+.serath-entry-date {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #4a3a6a;
+  width: 70px;
+  flex-shrink: 0;
+  padding-top: 2px;
+  text-transform: uppercase;
+}
+.serath-entry-text {
+  font-size: 13px;
+  color: #9a8ab8;
+  font-style: italic;
+  line-height: 1.5;
+  font-family: 'Crimson Pro', Georgia, serif;
+}
+.serath-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #3a2a5a;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.8;
+  font-family: 'Crimson Pro', Georgia, serif;
+}
 
 /* Momentum scrolling on all scroll containers */
 .scroll-log, .ach-list, .gear-screen, .history-screen, .ach-panel {
@@ -1664,6 +1840,9 @@ body {
       <button class="trophy-btn" id="history-nav-btn" onclick="openHistoryScreen()" style="border-color:var(--border-bright);color:var(--text-dim);">
         📅 History
       </button>
+      <button class="trophy-btn" id="serath-nav-btn" onclick="openSerathScreen()" style="border-color:#3a3050;color:#9a80cc;">
+        ◈ Serath
+      </button>
       <button class="trophy-btn" id="gear-nav-btn" onclick="openGearScreen()" style="border-color:var(--gold-dim);color:var(--gold-dim);">
         ⚔️ Gear
         <span class="trophy-count" id="gear-nav-count" style="background:var(--gold-dim);display:none"></span>
@@ -1691,6 +1870,36 @@ body {
         <button class="hist-tab" id="tab-weeks" onclick="setHistTab('weeks')">By Week</button>
       </div>
       <div id="history-content"></div>
+    </div>
+  </div>
+
+  <!-- SERATH SCREEN -->
+  <div class="serath-screen" id="serath-screen">
+    <div class="serath-inner">
+      <div class="serath-header">
+        <button class="gear-back-btn" onclick="closeSerathScreen()" style="border-color:#3a2a5a;color:#7a5aaa;">← Back</button>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:5px;text-transform:uppercase;color:#9a70cc;flex:1;">Serath</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:3px;color:#4a3a6a;text-transform:uppercase;">The Bound Shadow</div>
+      </div>
+
+      <!-- Portrait + current dialogue -->
+      <div class="serath-portrait-wrap">
+        <img src="serath-npc.png" alt="Serath" class="serath-portrait">
+        <div class="serath-dialogue-wrap">
+          <div class="serath-name-plate">◈ Serath speaks</div>
+          <div class="serath-dialogue" id="serath-dialogue">...</div>
+          <div class="serath-obs-label" id="serath-obs-label"></div>
+        </div>
+      </div>
+
+      <!-- What Serath observes -->
+      <div class="serath-observations" id="serath-observations"></div>
+
+      <!-- Chronicle of past observations -->
+      <div class="serath-chronicle">
+        <div class="serath-chronicle-title">◈ What Has Been Witnessed</div>
+        <div id="serath-chronicle-list"></div>
+      </div>
     </div>
   </div>
 
@@ -4022,6 +4231,250 @@ function notifyLoggedToday() {
   if (navigator.serviceWorker && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ type: 'LOGGED_TODAY' });
   }
+}
+
+// ─────────────────────────────────────────────
+// SERATH — THE BOUND SHADOW
+// ─────────────────────────────────────────────
+
+function openSerathScreen() {
+  renderSerathScreen();
+  document.getElementById('serath-screen').classList.add('open');
+  window.scrollTo(0, 0);
+}
+
+function closeSerathScreen() {
+  document.getElementById('serath-screen').classList.remove('open');
+}
+
+function getSerathDialogue() {
+  const today = getTodayStr();
+  const todayData = state.days[today];
+  const logged = !!todayData;
+  const hour = new Date().getHours();
+  const allDays = Object.keys(state.days).sort();
+  const totalDays = allDays.length;
+
+  // Calculate streak
+  let streak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    if (state.days[localDateStr(d)]) streak++;
+    else break;
+  }
+
+  // Weight trend
+  const wl = getWeightLog().filter(w => w.weight > 50);
+  const latestWeight = wl.length > 0 ? wl[wl.length - 1].weight : null;
+  const weightLost = latestWeight ? Math.max(0, STARTING_WEIGHT - latestWeight).toFixed(1) : 0;
+
+  // Perfect days
+  const perfectDays = Object.values(state.days).filter(d => d.perfect).length;
+
+  // Today's checks
+  const todayChecks = todayData ? ATTRS.filter(a => todayData.checks?.[a]).length : 0;
+  const todayPerfect = todayData?.perfect;
+  const todayStrength = todayData?.checks?.strength;
+  const stepsOk = (todayData?.steps || 0) >= STEPS_TARGET;
+
+  // Rank
+  const rankIdx = RANKS.reduce((best, r, i) => state.points >= r.points ? i : best, 0);
+  const rankName = RANKS[rankIdx].name;
+
+  // Build context-aware dialogue
+  if (totalDays === 0) {
+    return {
+      text: "So. You found the Forge. Most do not bother to enter. We shall see if you are most people.",
+      label: "First encounter"
+    };
+  }
+
+  if (!logged && hour < 12) {
+    return {
+      text: "The morning advances. You have not yet entered the log. I note this without surprise.",
+      label: "Unlogged — morning"
+    };
+  }
+
+  if (!logged && hour >= 12 && hour < 18) {
+    return {
+      text: "Half the day is spent. The chronicle remains empty. I have seen this before. I have seen how it ends.",
+      label: "Unlogged — afternoon"
+    };
+  }
+
+  if (!logged && hour >= 18) {
+    return {
+      text: "Evening. The day is nearly gone and you have not logged. I would say I am surprised, but I would be lying, and I have been bound long enough to dislike lies.",
+      label: "Unlogged — evening"
+    };
+  }
+
+  if (todayPerfect) {
+    return {
+      text: "A Perfect Day. I have witnessed many things in my centuries here. I will not pretend this is the most impressive. But it is not nothing.",
+      label: "Perfect Day observed"
+    };
+  }
+
+  if (logged && todayChecks >= 4 && stepsOk) {
+    return {
+      text: "You logged. You moved. You did the work. I find I have less to criticise today than usual. This is either your victory or my failure. Perhaps both.",
+      label: "Strong day observed"
+    };
+  }
+
+  if (logged && todayStrength) {
+    return {
+      text: "Strength logged. Good. The body is a forge of its own. You understand this, at least partially.",
+      label: "Training acknowledged"
+    };
+  }
+
+  if (logged && todayChecks <= 2) {
+    return {
+      text: "You logged. I acknowledge this. Though I note the entry is... sparse. The Forge accepts what you give it. It simply remembers what you gave.",
+      label: "Partial day noted"
+    };
+  }
+
+  if (streak >= 14) {
+    return {
+      text: `${streak} days. I confess I did not expect this from you. I have been bound long enough to be occasionally wrong. You are one of those occasions.`,
+      label: `${streak}-day streak`
+    };
+  }
+
+  if (streak >= 7) {
+    return {
+      text: `Seven days. A week of unbroken entries. The pattern is forming. Patterns are how ordinary people become something else entirely.`,
+      label: "Week streak observed"
+    };
+  }
+
+  if (streak >= 3) {
+    return {
+      text: "Three consecutive days. Do not celebrate. Consistency is not impressive at three days. Ask me again at thirty.",
+      label: "3-day streak observed"
+    };
+  }
+
+  if (streak === 1 && totalDays > 3) {
+    return {
+      text: "You returned. After the gap, you returned. I did not wager on it. I would have lost. This is worth noting, if nothing else.",
+      label: "Return after absence"
+    };
+  }
+
+  if (perfectDays >= 5) {
+    return {
+      text: `${perfectDays} Perfect Days recorded in the chronicle. You are building something. Whether it holds is the question that interests me.`,
+      label: `${perfectDays} perfect days`
+    };
+  }
+
+  if (weightLost >= 5) {
+    return {
+      text: `${weightLost}kg shed since you began. The body changes slowly. You are changing it. This is the kind of thing I remember.`,
+      label: "Weight progress noted"
+    };
+  }
+
+  if (hour < 7) {
+    return {
+      text: "You are here before sunrise. I am not accustomed to being surprised. You have managed it. I am not certain how I feel about that.",
+      label: "Early morning — unexpected"
+    };
+  }
+
+  if (hour >= 22) {
+    return {
+      text: "Late. As expected. At least you are here. The Forge does not close. It simply waits.",
+      label: "Late night entry"
+    };
+  }
+
+  // Default logged dialogue
+  const defaults = [
+    "You logged. The chronicle grows. Whether it tells a story worth reading remains to be seen.",
+    "Another entry. Another day added to the record. The Forge asks nothing more. For now.",
+    "I have been watching. You logged today. This is the minimum. It is also the foundation of everything.",
+    "The entry is recorded. I note it. I move on. As do you, presumably.",
+    "Today's deeds are written. Tomorrow's are not yet decided. This is the only fact that matters.",
+  ];
+
+  return {
+    text: defaults[Math.floor(Math.random() * defaults.length)],
+    label: `Day ${totalDays} of the chronicle`
+  };
+}
+
+function renderSerathScreen() {
+  const { text, label } = getSerathDialogue();
+  document.getElementById('serath-dialogue').textContent = `"${text}"`;
+  document.getElementById('serath-obs-label').textContent = label;
+
+  // Stats Serath observes
+  const today = getTodayStr();
+  const allDays = Object.keys(state.days);
+  const wl = getWeightLog().filter(w => w.weight > 50);
+  const latestWeight = wl.length > 0 ? wl[wl.length - 1].weight : null;
+  const perfectDays = Object.values(state.days).filter(d => d.perfect).length;
+
+  let streak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    if (state.days[localDateStr(d)]) streak++;
+    else break;
+  }
+
+  const rankIdx = RANKS.reduce((best, r, i) => state.points >= r.points ? i : best, 0);
+
+  const observations = [
+    { label: 'Days Chronicled', value: allDays.length, sub: 'total entries' },
+    { label: 'Current Streak', value: `${streak}`, sub: streak === 1 ? 'day' : 'days' },
+    { label: 'Perfect Days', value: perfectDays, sub: 'full alignment' },
+    { label: 'Forge Rank', value: RANKS[rankIdx].name, sub: `${state.points} pts` },
+    { label: 'Current Weight', value: latestWeight ? `${latestWeight}kg` : '—', sub: latestWeight ? `${Math.max(0, STARTING_WEIGHT - latestWeight).toFixed(1)}kg lost` : 'not yet logged' },
+    { label: 'Forge Points', value: state.points, sub: 'accumulated' },
+  ];
+
+  document.getElementById('serath-observations').innerHTML = observations.map(o => `
+    <div class="obs-card">
+      <div class="obs-card-label">${o.label}</div>
+      <div class="obs-card-value">${o.value}</div>
+      <div class="obs-card-sub">${o.sub}</div>
+    </div>
+  `).join('');
+
+  // Chronicle — Serath's past notable observations (stored in state)
+  if (!state.serathChronicle) state.serathChronicle = [];
+
+  // Add today's observation to chronicle if not already there
+  const todayEntry = state.serathChronicle.find(e => e.date === today);
+  if (!todayEntry && state.days[today]) {
+    state.serathChronicle.unshift({ date: today, text, label });
+    if (state.serathChronicle.length > 30) state.serathChronicle = state.serathChronicle.slice(0, 30);
+    saveState(state);
+  }
+
+  const list = document.getElementById('serath-chronicle-list');
+  if (state.serathChronicle.length === 0) {
+    list.innerHTML = `<div class="serath-empty">The chronicle is empty.<br>Enter the Forge. Give Serath something to observe.</div>`;
+    return;
+  }
+
+  list.innerHTML = state.serathChronicle.map(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    const dateLabel = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    return `
+      <div class="serath-entry">
+        <div class="serath-entry-date">${dateLabel}</div>
+        <div class="serath-entry-text">"${e.text}"</div>
+      </div>`;
+  }).join('');
 }
 
 // ─────────────────────────────────────────────
