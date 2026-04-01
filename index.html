@@ -2824,6 +2824,7 @@ function showToast(msg) {
 // ─────────────────────────────────────────────
 
 const ACHIEVEMENTS = [
+  // ── FIRES IMMEDIATELY — deliberate checkbox taps ──────────────────
   {
     id: 'first_blood',
     icon: '⚔️',
@@ -2833,96 +2834,12 @@ const ACHIEVEMENTS = [
     check: (s) => Object.keys(s.days).length >= 1,
   },
   {
-    id: 'breakfast_club',
-    icon: '🥗',
-    title: 'Breakfast Club',
-    desc: "You ate well. Congratulations. You have achieved the bare minimum that every nutritionist has been screaming at you about for years.",
-    pts: 3,
-    check: (s) => {
-      const today = s.days[getTodayStr()];
-      return today && today.checks && today.checks.vitality;
-    },
-  },
-  {
-    id: 'steps_nerd',
-    icon: '🦶',
-    title: 'Compulsive Pedestrian',
-    desc: "Ten thousand steps. You walked roughly the length of a small city. Nobody noticed. The Forge noticed.",
-    pts: 5,
-    check: (s) => {
-      const today = s.days[getTodayStr()];
-      return today && (today.steps||0) >= 10000;
-    },
-  },
-  {
-    id: 'big_steps',
-    icon: '🏔️',
-    title: 'Are You Running From Something',
-    desc: "You logged over 20,000 steps. That's not a walk. That's a cry for help with excellent cardiovascular benefits.",
-    pts: 10,
-    check: (s) => {
-      const today = s.days[getTodayStr()];
-      return today && (today.steps||0) >= 20000;
-    },
-  },
-  {
-    id: 'perfect_day',
-    icon: '🔥',
-    title: 'Statistically Improbable',
-    desc: "A Perfect Day. Every single box checked. The System is mildly suspicious you cheated. It cannot prove this.",
-    pts: 10,
-    check: (s) => {
-      const today = s.days[getTodayStr()];
-      return today && today.perfect;
-    },
-  },
-  {
-    id: 'three_day_streak',
-    icon: '📅',
-    title: 'It\'s a Pattern Now',
-    desc: "Three days in a row. You've gone from 'trying something' to 'doing a thing'. These are different. One of them is dangerous.",
-    pts: 8,
-    check: (s) => {
-      let streak = 0;
-      for (let i=0;i<3;i++) {
-        const d = new Date(); d.setDate(d.getDate()-i);
-        if (s.days[localDateStr(d)]) streak++; else break;
-      }
-      return streak >= 3;
-    },
-  },
-  {
-    id: 'seven_day_streak',
-    icon: '🗓️',
-    title: 'Week One Survivor',
-    desc: "Seven consecutive days. You have now officially outlasted most gym memberships purchased in January.",
-    pts: 20,
-    check: (s) => {
-      let streak = 0;
-      for (let i=0;i<7;i++) {
-        const d = new Date(); d.setDate(d.getDate()-i);
-        if (s.days[localDateStr(d)]) streak++; else break;
-      }
-      return streak >= 7;
-    },
-  },
-  {
     id: 'sunday_warrior',
     icon: '😤',
     title: 'Sunday is Not Sacred',
     desc: "You logged on a Sunday. The couch is disappointed. The couch will recover. Will you?",
     pts: 5,
-    check: (s) => {
-      return new Date().getDay() === 0 && !!s.days[getTodayStr()];
-    },
-  },
-  {
-    id: 'midnight_forge',
-    icon: '🌙',
-    title: 'The Witching Hour Log',
-    desc: "It is past midnight. You are logging your day. We have questions. We will not ask them. Enter the Forge.",
-    pts: 8,
-    check: (s) => new Date().getHours() >= 23 || new Date().getHours() < 4,
+    check: (s) => new Date().getDay() === 0 && !!s.days[getTodayStr()],
   },
   {
     id: 'early_bird',
@@ -2933,48 +2850,12 @@ const ACHIEVEMENTS = [
     check: (s) => new Date().getHours() < 7 && !!s.days[getTodayStr()],
   },
   {
-    id: 'brain_only',
-    icon: '🧠',
-    title: 'The Thinker (Sits A Lot)',
-    desc: "Intelligence checked. Strength skipped. You grew your mind and rested your body. Philosophers have done worse.",
-    pts: 3,
-    check: (s) => {
-      const t = s.days[getTodayStr()];
-      return t && t.checks && t.checks.intelligence && !t.checks.strength;
-    },
-  },
-  {
-    id: 'brawn_only',
-    icon: '🏋️',
-    title: 'Himbo Protocol Engaged',
-    desc: "Strength checked. Intelligence skipped. You trained hard. You did not learn anything. The barbarians would be proud.",
-    pts: 3,
-    check: (s) => {
-      const t = s.days[getTodayStr()];
-      return t && t.checks && t.checks.strength && !t.checks.intelligence;
-    },
-  },
-  {
-    id: 'clean_house_lazy_body',
-    icon: '🧹',
-    title: 'Domestically Exceptional',
-    desc: "Constitution checked. Strength skipped. Your home is spotless. Your muscles remain theoretical.",
-    pts: 3,
-    check: (s) => {
-      const t = s.days[getTodayStr()];
-      return t && t.checks && t.checks.constitution && !t.checks.strength;
-    },
-  },
-  {
-    id: 'ate_well_skipped_steps',
-    icon: '🛋️',
-    title: 'Healthy Sedentary',
-    desc: "Vitality checked. Under 2,000 steps. You ate a salad and then sat completely still for the rest of the day. The Forge has no comment.",
-    pts: 3,
-    check: (s) => {
-      const t = s.days[getTodayStr()];
-      return t && t.checks && t.checks.vitality && (t.steps||0) < 2000;
-    },
+    id: 'midnight_forge',
+    icon: '🌙',
+    title: 'The Witching Hour Log',
+    desc: "It is past midnight. You are logging your day. We have questions. We will not ask them. Enter the Forge.",
+    pts: 8,
+    check: (s) => new Date().getHours() >= 23 || new Date().getHours() < 4,
   },
   {
     id: 'weight_tracker_1',
@@ -2982,15 +2863,15 @@ const ACHIEVEMENTS = [
     title: 'Facing the Tribunal',
     desc: "You logged your weight. The number is what it is. The Forge does not judge. The Forge simply records. And remembers. Forever.",
     pts: 5,
-    check: (s) => s.weightLog && s.weightLog.length >= 1,
+    check: (s) => getWeightLog().length >= 1,
   },
   {
     id: 'weight_tracker_7',
     icon: '📉',
-    title: 'Data Doesn\'t Lie (But It Can Hurt)',
+    title: "Data Doesn't Lie (But It Can Hurt)",
     desc: "Seven weight entries. You now have a graph. The graph goes in a direction. We trust you know which direction you're aiming for.",
     pts: 10,
-    check: (s) => s.weightLog && s.weightLog.length >= 7,
+    check: (s) => getWeightLog().length >= 7,
   },
   {
     id: 'pipeline_pusher',
@@ -2998,9 +2879,7 @@ const ACHIEVEMENTS = [
     title: 'The Grindset is Real',
     desc: "Influence logged five times. You moved the pipeline. You made the calls. Somewhere a spreadsheet updated because of you. Glory.",
     pts: 8,
-    check: (s) => {
-      return Object.values(s.days).filter(d => d.checks && d.checks.influence).length >= 5;
-    },
+    check: (s) => Object.values(s.days).filter(d => d.checks && d.checks.influence).length >= 5,
   },
   {
     id: 'all_stats_once',
@@ -3012,14 +2891,6 @@ const ACHIEVEMENTS = [
       const allDays = Object.values(s.days);
       return ATTRS.every(a => allDays.some(d => d.checks && d.checks[a]));
     },
-  },
-  {
-    id: 'three_perfect',
-    icon: '👑',
-    title: 'Thrice Blessed, Mildly Insufferable',
-    desc: "Three Perfect Days. You are becoming someone else. We hope that someone is better. We also hope they're less smug about it.",
-    pts: 25,
-    check: (s) => Object.values(s.days).filter(d => d.perfect).length >= 3,
   },
   {
     id: 'initiate_rank',
@@ -3046,6 +2917,156 @@ const ACHIEVEMENTS = [
     check: (s) => s.points >= 150,
   },
   {
+    id: 'log_thirty',
+    icon: '🗿',
+    title: 'The Monolith',
+    desc: "Thirty total logs. You have been consistent long enough that it is now simply who you are. The Forge does not know what to do with this. It is pleased.",
+    pts: 30,
+    check: (s) => Object.keys(s.days).length >= 30,
+  },
+
+  // ── FIRES AFTER 9:30PM — step/combo achievements need a full day ──
+  {
+    id: 'breakfast_club',
+    icon: '🥗',
+    title: 'Breakfast Club',
+    desc: "You ate well. Congratulations. You have achieved the bare minimum that every nutritionist has been screaming at you about for years.",
+    pts: 3,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const today = s.days[getTodayStr()];
+      return today && today.checks && today.checks.vitality;
+    },
+  },
+  {
+    id: 'steps_nerd',
+    icon: '🦶',
+    title: 'Compulsive Pedestrian',
+    desc: "Ten thousand steps. You walked roughly the length of a small city. Nobody noticed. The Forge noticed.",
+    pts: 5,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const today = s.days[getTodayStr()];
+      return today && (today.steps||0) >= 10000;
+    },
+  },
+  {
+    id: 'big_steps',
+    icon: '🏔️',
+    title: 'Are You Running From Something',
+    desc: "You logged over 20,000 steps. That's not a walk. That's a cry for help with excellent cardiovascular benefits.",
+    pts: 10,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const today = s.days[getTodayStr()];
+      return today && (today.steps||0) >= 20000;
+    },
+  },
+  {
+    id: 'perfect_day',
+    icon: '🔥',
+    title: 'Statistically Improbable',
+    desc: "A Perfect Day. Every single box checked. The System is mildly suspicious you cheated. It cannot prove this.",
+    pts: 10,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const today = s.days[getTodayStr()];
+      return today && today.perfect;
+    },
+  },
+  {
+    id: 'brain_only',
+    icon: '🧠',
+    title: 'The Thinker (Sits A Lot)',
+    desc: "Intelligence checked. Strength skipped. You grew your mind and rested your body. Philosophers have done worse.",
+    pts: 3,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.intelligence && !t.checks.strength;
+    },
+  },
+  {
+    id: 'brawn_only',
+    icon: '🏋️',
+    title: 'Himbo Protocol Engaged',
+    desc: "Strength checked. Intelligence skipped. You trained hard. You did not learn anything. The barbarians would be proud.",
+    pts: 3,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.strength && !t.checks.intelligence;
+    },
+  },
+  {
+    id: 'clean_house_lazy_body',
+    icon: '🧹',
+    title: 'Domestically Exceptional',
+    desc: "Constitution checked. Strength skipped. Your home is spotless. Your muscles remain theoretical.",
+    pts: 3,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.constitution && !t.checks.strength;
+    },
+  },
+  {
+    id: 'ate_well_skipped_steps',
+    icon: '🛋️',
+    title: 'Healthy Sedentary',
+    desc: "Vitality checked. Under 2,000 steps. You ate a salad and then sat completely still for the rest of the day. The Forge has no comment.",
+    pts: 3,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      const t = s.days[getTodayStr()];
+      return t && t.checks && t.checks.vitality && (t.steps||0) < 2000;
+    },
+  },
+  {
+    id: 'three_perfect',
+    icon: '👑',
+    title: 'Thrice Blessed, Mildly Insufferable',
+    desc: "Three Perfect Days. You are becoming someone else. We hope that someone is better. We also hope they're less smug about it.",
+    pts: 25,
+    check: (s) => {
+      if (new Date().getHours() < 21 || (new Date().getHours() === 21 && new Date().getMinutes() < 30)) return false;
+      return Object.values(s.days).filter(d => d.perfect).length >= 3;
+    },
+  },
+
+  // ── CHECKS YESTERDAY — streak achievements use prior days only ────
+  {
+    id: 'three_day_streak',
+    icon: '📅',
+    title: "It's a Pattern Now",
+    desc: "Three days in a row. You've gone from 'trying something' to 'doing a thing'. These are different. One of them is dangerous.",
+    pts: 8,
+    check: (s) => {
+      // Must have yesterday logged — counts Mon-1, Mon-2, Mon-3 (excludes today)
+      let streak = 0;
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        if (s.days[localDateStr(d)]) streak++; else break;
+      }
+      return streak >= 3;
+    },
+  },
+  {
+    id: 'seven_day_streak',
+    icon: '🗓️',
+    title: 'Week One Survivor',
+    desc: "Seven consecutive days. You have now officially outlasted most gym memberships purchased in January.",
+    pts: 20,
+    check: (s) => {
+      let streak = 0;
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        if (s.days[localDateStr(d)]) streak++; else break;
+      }
+      return streak >= 7;
+    },
+  },
+  {
     id: 'constitution_streak',
     icon: '🏠',
     title: 'Functioning Adult Detected',
@@ -3053,21 +3074,13 @@ const ACHIEVEMENTS = [
     pts: 6,
     check: (s) => {
       let streak = 0;
-      for (let i=0;i<3;i++) {
-        const d = new Date(); d.setDate(d.getDate()-i);
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(); d.setDate(d.getDate() - i);
         const day = s.days[localDateStr(d)];
         if (day && day.checks && day.checks.constitution) streak++; else break;
       }
       return streak >= 3;
     },
-  },
-  {
-    id: 'log_thirty',
-    icon: '🗿',
-    title: 'The Monolith',
-    desc: "Thirty total logs. You have been consistent long enough that it is now simply who you are. The Forge does not know what to do with this. It is pleased.",
-    pts: 30,
-    check: (s) => Object.keys(s.days).length >= 30,
   },
 ];
 
