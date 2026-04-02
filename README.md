@@ -99,7 +99,7 @@ create table forge_data (
 ```
 
 ### Data Format
-All progress stored under a single row with `id = 'tumek'`. The `data` column contains the full state object:
+All progress stored under a single row with. The `data` column contains the full state object:
 ```json
 {
   "days": {
@@ -133,8 +133,6 @@ Found in the **Armoury** screen, below the gear stash.
 
 ### Netlify
 The app is deployed by dragging and dropping `the-forge.html` into the Netlify dashboard. No build step required.
-
-Live URL: `https://tumeks-forge.netlify.app/`
 
 ### Updating
 1. Make changes to `the-forge.html`
