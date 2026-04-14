@@ -3391,6 +3391,7 @@ function checkQuests() {
         quest: 'Iron Discipline — 3 Workouts This Week',
         reward: '+20 Forge Points',
         gear,
+        questType: 'weekly',
       });
     }
   }
@@ -3413,6 +3414,7 @@ function checkQuests() {
         quest: 'The Long Descent — Reach 100kg',
         reward: '+100 Forge Points',
         gear,
+        questType: 'epic',
       });
     } else if (!eq.milestone5 && kg_lost >= 5) {
       eq.milestone5 = true;
@@ -3445,6 +3447,7 @@ function checkQuests() {
         quest: def.title,
         reward: `+${def.pts} Forge Points`,
         gear,
+        questType: 'wildcard',
       });
     }
   }
@@ -3480,11 +3483,13 @@ function pickGear(type) {
 // Quest interrupt queue
 let questQueue = [];
 let questShowing = false;
+let currentQuestType = null;
 
 function showNextQuest() {
   if (questQueue.length === 0) { questShowing = false; return; }
   questShowing = true;
   const q = questQueue.shift();
+  currentQuestType = q.questType || null;
 
   const overlay = document.getElementById('quest-overlay');
   const interrupt = overlay.querySelector('.quest-interrupt');
@@ -3517,6 +3522,17 @@ function showNextQuest() {
 }
 
 function dismissQuest() {
+  // Mark the reward as claimed so maybeIssueWildcard() can issue the next one
+  if (currentQuestType && state.quests) {
+    const q = state.quests[currentQuestType];
+    if (q && q.completed && !q.rewardClaimed) {
+      q.rewardClaimed = true;
+      saveState(state);
+    }
+  }
+  currentQuestType = null;
+  maybeIssueWildcard();
+
   document.getElementById('quest-overlay').classList.remove('show');
   setTimeout(() => {
     if (questQueue.length > 0) showNextQuest();
