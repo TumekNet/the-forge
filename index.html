@@ -1890,6 +1890,260 @@ body {
 .tag-weekly { background: rgba(232,84,26,0.12); color: var(--fire); }
 .tag-wild   { background: rgba(90,138,238,0.12); color: #5a8aee; }
 .tag-epic   { background: rgba(200,149,42,0.12); color: var(--gold); }
+
+/* ── INSIGHTS SCREEN ── */
+.insights-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 120;
+  overflow-y: auto;
+  animation: gearScreenIn 0.3s ease;
+  -webkit-overflow-scrolling: touch;
+}
+.insights-screen.open { display: block; }
+.insights-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+.insights-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.insights-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--fire);
+  flex: 1;
+}
+.insights-gate {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--fire-dim);
+  border-radius: var(--radius);
+  padding: 40px 24px;
+  text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  font-style: italic;
+  line-height: 1.8;
+}
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 600px) {
+  .insights-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+}
+.insights-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.insights-card-full { grid-column: 1 / -1; }
+.insights-card-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+.sparklines-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.sparkline-item { display: flex; flex-direction: column; gap: 4px; }
+.sparkline-header { display: flex; align-items: center; justify-content: space-between; }
+.sparkline-attr-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.sparkline-trend { font-size: 13px; color: var(--text-faint); }
+.sparkline-trend.up   { color: var(--green-bright); }
+.sparkline-trend.down { color: #e05050; }
+.sparkline-trend.flat { color: var(--text-faint); }
+.sparkline-svg { display: block; width: 100%; height: 44px; }
+.dow-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.dow-cell { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.dow-cell-bar { width: 100%; border-radius: 2px; min-height: 4px; }
+.dow-cell-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.dow-weak-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  font-style: italic;
+  margin-top: 6px;
+}
+.perfect-rate-big {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.perfect-rate-comparison {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.perfect-rate-indicator { font-size: 14px; }
+.perfect-rate-indicator.up   { color: var(--green-bright); }
+.perfect-rate-indicator.down { color: #e05050; }
+.perfect-rate-indicator.flat { color: var(--text-faint); }
+.best-weeks-list { display: flex; flex-direction: column; gap: 8px; }
+.best-week-row { display: flex; flex-direction: column; gap: 3px; }
+.best-week-meta { display: flex; justify-content: space-between; align-items: center; }
+.best-week-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+.best-week-pts {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--fire);
+}
+.best-week-bar-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.best-week-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--fire-dim), var(--fire));
+  border-radius: 2px;
+}
+.best-week-bar-fill.gold {
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+}
+.best-week-forge-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 1px;
+}
+.momentum-timeline {
+  display: grid;
+  grid-template-columns: repeat(60, 1fr);
+  gap: 2px;
+  margin-bottom: 8px;
+}
+@media (max-width: 399px) { .momentum-timeline { gap: 1px; } }
+.momentum-block {
+  aspect-ratio: 1;
+  border-radius: 1px;
+  min-width: 0;
+}
+.momentum-block.mb-perfect { background: var(--gold); }
+.momentum-block.mb-logged  { background: var(--fire); opacity: 0.7; }
+.momentum-block.mb-missed  { background: var(--border); }
+.momentum-block.mb-today   { outline: 1px solid var(--fire); outline-offset: 1px; }
+.momentum-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.momentum-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.momentum-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+.momentum-streak-note {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--fire);
+  margin-top: 8px;
+  font-style: italic;
+}
+.recovery-big {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.recovery-unit {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.recovery-subtext {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  color: var(--text-faint);
+  font-style: italic;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.recovery-placeholder {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  font-style: italic;
+  line-height: 1.8;
+}
 </style>
 </head>
 <body>
@@ -1913,6 +2167,9 @@ body {
       <button class="trophy-btn" id="gear-nav-btn" onclick="openGearScreen()" style="border-color:var(--gold-dim);color:var(--gold-dim);">
         ⚔️ Gear
         <span class="trophy-count" id="gear-nav-count" style="background:var(--gold-dim);display:none"></span>
+      </button>
+      <button class="trophy-btn" id="insights-nav-btn" onclick="openInsightsScreen()" style="border-color:var(--fire-dim);color:var(--fire);">
+        📊 Insights
       </button>
       <button class="trophy-btn" id="trophy-btn" onclick="openAchPanel()">
         🏆 <span>Feats</span>
@@ -2058,6 +2315,17 @@ body {
           Export saves a JSON file of all your data. Import restores from a previous export — your current data will be replaced.
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS SCREEN -->
+  <div class="insights-screen" id="insights-screen">
+    <div class="insights-inner">
+      <div class="insights-header">
+        <button class="gear-back-btn" onclick="closeInsightsScreen()">← Back</button>
+        <div class="insights-title">Insights</div>
+      </div>
+      <div id="insights-content"></div>
     </div>
   </div>
 
@@ -4535,6 +4803,449 @@ function openSerathScreen() {
 
 function closeSerathScreen() {
   document.getElementById('serath-screen').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────
+// INSIGHTS SCREEN
+// ─────────────────────────────────────────────
+
+function openInsightsScreen() {
+  renderInsightsScreen();
+  document.getElementById('insights-screen').classList.add('open');
+  window.scrollTo(0, 0);
+}
+
+function closeInsightsScreen() {
+  document.getElementById('insights-screen').classList.remove('open');
+}
+
+function insightsHasSufficientData() {
+  return Object.keys(state.days).length >= 14;
+}
+
+function renderInsightsScreen() {
+  const container = document.getElementById('insights-content');
+  if (!insightsHasSufficientData()) {
+    container.innerHTML = `<div class="insights-gate">
+      The Forge sees only the beginning of your record.<br>Return when more has been written.
+    </div>`;
+    return;
+  }
+  container.innerHTML = `
+    <div class="insights-grid">
+      <div class="insights-card insights-card-full">
+        <div class="insights-card-label">Attribute Sparklines — 8-Week Trend</div>
+        <div class="sparklines-grid" id="insights-sparklines"></div>
+      </div>
+      <div class="insights-card">
+        <div class="insights-card-label">Day of Week</div>
+        <div id="insights-dow"></div>
+      </div>
+      <div class="insights-card">
+        <div class="insights-card-label">Perfect Day Rate</div>
+        <div id="insights-perfect"></div>
+      </div>
+      <div class="insights-card">
+        <div class="insights-card-label">Best Weeks</div>
+        <div id="insights-best-weeks"></div>
+      </div>
+      <div class="insights-card">
+        <div class="insights-card-label">Recovery</div>
+        <div id="insights-recovery"></div>
+      </div>
+      <div class="insights-card insights-card-full">
+        <div class="insights-card-label">Momentum — Last 60 Days</div>
+        <div id="insights-momentum"></div>
+      </div>
+    </div>
+  `;
+  renderInsightsSparklines();
+  renderInsightsDow();
+  renderInsightsPerfect();
+  renderInsightsBestWeeks();
+  renderInsightsMomentum();
+  renderInsightsRecovery();
+}
+
+// ── Sparklines ──
+
+function getAttrWeeklyRates(attrKey, numWeeks) {
+  const now = new Date();
+  const thisMon = getMonday(now);
+  const rates = [];
+  for (let w = numWeeks - 1; w >= 0; w--) {
+    const monday = new Date(thisMon + 'T12:00:00');
+    monday.setDate(monday.getDate() - w * 7);
+    let logged = 0, achieved = 0;
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + d);
+      const key = localDateStr(day);
+      const dayData = state.days[key];
+      if (!dayData) continue;
+      logged++;
+      if (attrKey === 'stamina') {
+        if ((dayData.steps || 0) >= STEPS_TARGET) achieved++;
+      } else {
+        if (dayData.checks && dayData.checks[attrKey]) achieved++;
+      }
+    }
+    rates.push(logged > 0 ? achieved / logged : null);
+  }
+  return rates;
+}
+
+function getTrendDirection(rates) {
+  const nonNull = rates.map((r, i) => r !== null ? { v: r, i } : null).filter(Boolean);
+  if (nonNull.length < 4) return 'flat';
+  const recent = nonNull.slice(-3).map(x => x.v);
+  const prior  = nonNull.slice(-6, -3).map(x => x.v);
+  if (prior.length < 2) return 'flat';
+  const avgRecent = recent.reduce((a, b) => a + b, 0) / recent.length;
+  const avgPrior  = prior.reduce((a, b) => a + b, 0) / prior.length;
+  if (avgRecent > avgPrior + 0.05) return 'up';
+  if (avgRecent < avgPrior - 0.05) return 'down';
+  return 'flat';
+}
+
+function renderSparklineSVG(rates, attrKey) {
+  const W = 100, H = 44;
+  const PAD = { top: 4, bottom: 4, left: 2, right: 2 };
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+  const n = rates.length;
+  const validRates = rates.filter(r => r !== null);
+  if (validRates.length < 2) {
+    return `<svg class="sparkline-svg" viewBox="0 0 ${W} ${H}">
+      <text x="50" y="26" text-anchor="middle" font-size="7" fill="#3a3a3a" font-family="Barlow Condensed,sans-serif" letter-spacing="1">No data</text>
+    </svg>`;
+  }
+  const pts = [];
+  rates.forEach((r, i) => {
+    if (r === null) return;
+    const x = PAD.left + (i / (n - 1)) * chartW;
+    const y = PAD.top + (1 - r) * chartH;
+    pts.push([x, y]);
+  });
+
+  let lineD = '';
+  let startNew = true;
+  rates.forEach((r, i) => {
+    if (r === null) { startNew = true; return; }
+    const x = PAD.left + (i / (n - 1)) * chartW;
+    const y = PAD.top + (1 - r) * chartH;
+    lineD += startNew ? `M${x.toFixed(1)},${y.toFixed(1)}` : ` L${x.toFixed(1)},${y.toFixed(1)}`;
+    startNew = false;
+  });
+
+  const first = pts[0], last = pts[pts.length - 1];
+  const areaD = lineD
+    + ` L${last[0].toFixed(1)},${(H - PAD.bottom).toFixed(1)}`
+    + ` L${first[0].toFixed(1)},${(H - PAD.bottom).toFixed(1)} Z`;
+
+  const gradId = `spark-grad-${attrKey}`;
+  return `<svg class="sparkline-svg" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8541a" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#e8541a" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${areaD}" fill="url(#${gradId})"/>
+    <path d="${lineD}" fill="none" stroke="#7a2a0a" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="${lineD}" fill="none" stroke="#e8541a" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>
+  </svg>`;
+}
+
+function renderInsightsSparklines() {
+  const allAttrs = [
+    { key: 'vitality',      icon: '❤️',  label: 'Vitality'  },
+    { key: 'stamina',       icon: '🏃',  label: 'Stamina'   },
+    { key: 'influence',     icon: '🗣️',  label: 'Influence' },
+    { key: 'strength',      icon: '💪',  label: 'Strength'  },
+    { key: 'constitution',  icon: '🛡️',  label: 'Constit.'  },
+    { key: 'intelligence',  icon: '🧠',  label: 'Intel.'    },
+  ];
+  const grid = document.getElementById('insights-sparklines');
+  grid.innerHTML = allAttrs.map(a => {
+    const rates = getAttrWeeklyRates(a.key, 8);
+    const dir = getTrendDirection(rates);
+    const arrow = dir === 'up' ? '↑' : dir === 'down' ? '↓' : '→';
+    return `<div class="sparkline-item">
+      <div class="sparkline-header">
+        <span class="sparkline-attr-name">${a.icon} ${a.label}</span>
+        <span class="sparkline-trend ${dir}">${arrow}</span>
+      </div>
+      ${renderSparklineSVG(rates, a.key)}
+    </div>`;
+  }).join('');
+}
+
+// ── Day of Week Heatmap ──
+
+function getDowData() {
+  const counts   = [0, 0, 0, 0, 0, 0, 0];
+  const loggedDows = [0, 0, 0, 0, 0, 0, 0];
+  Object.entries(state.days).forEach(([dateStr, dayData]) => {
+    const date = new Date(dateStr + 'T12:00:00');
+    const dow = (date.getDay() + 6) % 7;
+    loggedDows[dow]++;
+    let attrCount = ATTRS.filter(a => dayData.checks && dayData.checks[a]).length;
+    if ((dayData.steps || 0) >= STEPS_TARGET) attrCount++;
+    counts[dow] += attrCount;
+  });
+  const avgs = counts.map((c, i) => loggedDows[i] > 0 ? c / loggedDows[i] : 0);
+  return { avgs, loggedDows };
+}
+
+function renderInsightsDow() {
+  const DOW_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const DOW_FULL  = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const { avgs, loggedDows } = getDowData();
+  const maxVal = Math.max(...avgs, 0.01);
+
+  let weakIdx = -1, weakVal = Infinity;
+  avgs.forEach((v, i) => {
+    if (loggedDows[i] > 0 && v < weakVal) { weakVal = v; weakIdx = i; }
+  });
+
+  const cells = DOW_NAMES.map((name, i) => {
+    const val = avgs[i];
+    const opacity = loggedDows[i] > 0 ? 0.15 + (val / maxVal) * 0.75 : 0.08;
+    const height = loggedDows[i] > 0 ? Math.max(4, Math.round(4 + (val / maxVal) * 52)) : 4;
+    return `<div class="dow-cell">
+      <div class="dow-cell-bar" style="height:${height}px;background:rgba(232,84,26,${opacity.toFixed(2)});"></div>
+      <div class="dow-cell-label">${name}</div>
+    </div>`;
+  }).join('');
+
+  const weakNote = weakIdx >= 0
+    ? `<div class="dow-weak-label">⚠ ${DOW_FULL[weakIdx]} — the gap in your armour.</div>`
+    : '';
+
+  document.getElementById('insights-dow').innerHTML = `
+    <div class="dow-heatmap-grid">${cells}</div>
+    ${weakNote}
+  `;
+}
+
+// ── Perfect Day Rate ──
+
+function getPerfectDayData() {
+  const allDays = Object.values(state.days);
+  const totalLogged = allDays.length;
+  const totalPerfect = allDays.filter(d => d.perfect).length;
+  const overall = totalLogged > 0 ? Math.round(totalPerfect / totalLogged * 100) : 0;
+
+  const today = new Date();
+  let last30logged = 0, last30perfect = 0, prior30logged = 0, prior30perfect = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = localDateStr(d);
+    const day = state.days[key];
+    if (!day) continue;
+    if (i < 30) { last30logged++; if (day.perfect) last30perfect++; }
+    else        { prior30logged++; if (day.perfect) prior30perfect++; }
+  }
+
+  const last30rate  = last30logged  > 0 ? last30perfect  / last30logged  : null;
+  const prior30rate = prior30logged > 0 ? prior30perfect / prior30logged : null;
+
+  let direction = 'flat';
+  if (last30rate !== null && prior30rate !== null) {
+    if (last30rate > prior30rate + 0.05) direction = 'up';
+    else if (last30rate < prior30rate - 0.05) direction = 'down';
+  }
+  return { overall, last30rate, prior30rate, direction };
+}
+
+function renderInsightsPerfect() {
+  const { overall, last30rate, prior30rate, direction } = getPerfectDayData();
+  const arrow = direction === 'up' ? '↑' : direction === 'down' ? '↓' : '→';
+  const trendText = direction === 'up'
+    ? 'Improving — the Forge approves.'
+    : direction === 'down'
+    ? 'Declining — the Forge remembers.'
+    : 'Holding steady.';
+
+  const last30pct  = last30rate  !== null ? Math.round(last30rate  * 100) + '%' : '—';
+  const prior30pct = prior30rate !== null ? Math.round(prior30rate * 100) + '%' : '—';
+
+  document.getElementById('insights-perfect').innerHTML = `
+    <div class="perfect-rate-big">${overall}%</div>
+    <div class="recovery-unit">Overall perfect day rate</div>
+    ${last30rate !== null || prior30rate !== null ? `
+    <div class="perfect-rate-comparison">
+      <span class="perfect-rate-indicator ${direction}">${arrow}</span>
+      <span>${prior30pct} → ${last30pct} (last 30 days)</span>
+    </div>
+    <div class="recovery-subtext">${trendText}</div>
+    ` : ''}
+  `;
+}
+
+// ── Best Weeks ──
+
+function getBestWeeks(topN) {
+  const weekScores = {};
+  Object.entries(state.days).forEach(([dateStr, dayData]) => {
+    const monday = getMonday(new Date(dateStr + 'T12:00:00'));
+    if (!weekScores[monday]) weekScores[monday] = 0;
+    const checks = ATTRS.filter(a => dayData.checks && dayData.checks[a]).length;
+    const stepsOk = (dayData.steps || 0) >= STEPS_TARGET ? 1 : 0;
+    const perfectBonus = dayData.perfect ? 3 : 0;
+    weekScores[monday] += checks + stepsOk + perfectBonus;
+  });
+  const sorted = Object.entries(weekScores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, topN);
+  const bestPts = sorted[0] ? sorted[0][1] : 1;
+  return sorted.map(([monday, pts]) => ({
+    monday,
+    pts,
+    pct: pts / bestPts * 100,
+    isTop: monday === sorted[0][0],
+  }));
+}
+
+function formatWeekRange(mondayStr) {
+  const mon = new Date(mondayStr + 'T12:00:00');
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  const fmt = d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  return `${fmt(mon)} – ${fmt(sun)}`;
+}
+
+function renderInsightsBestWeeks() {
+  const FORGE_LABELS = ['Peak Form', 'The Crucible', 'Total Dominion', 'The Iron Week', 'Forgefire'];
+  const weeks = getBestWeeks(5);
+  if (weeks.length === 0) {
+    document.getElementById('insights-best-weeks').innerHTML =
+      `<div class="recovery-placeholder">Not enough weeks on record yet.</div>`;
+    return;
+  }
+  document.getElementById('insights-best-weeks').innerHTML = `
+    <div class="best-weeks-list">
+      ${weeks.map((w, idx) => {
+        const label = idx === 0
+          ? FORGE_LABELS[parseInt(w.monday.replace(/-/g, '')) % FORGE_LABELS.length]
+          : '';
+        return `<div class="best-week-row">
+          <div class="best-week-meta">
+            <span class="best-week-label">${formatWeekRange(w.monday)}</span>
+            <span class="best-week-pts">${w.pts} pts</span>
+          </div>
+          <div class="best-week-bar-track">
+            <div class="best-week-bar-fill${w.isTop ? ' gold' : ''}" style="width:${w.pct.toFixed(1)}%"></div>
+          </div>
+          ${label ? `<div class="best-week-forge-label">${label}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+// ── Momentum Blocks ──
+
+function getMomentumBlocks() {
+  const today = getTodayStr();
+  const now = new Date();
+  const blocks = [];
+  for (let i = 59; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    const key = localDateStr(d);
+    const day = state.days[key];
+    const isToday = i === 0;
+    let type = 'missed';
+    if (day && day.perfect) type = 'perfect';
+    else if (day) type = 'logged';
+    blocks.push({ key, type, isToday });
+  }
+  return blocks;
+}
+
+function renderInsightsMomentum() {
+  const blocks = getMomentumBlocks();
+  let currentStreak = 0;
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    if (blocks[i].type !== 'missed') currentStreak++;
+    else break;
+  }
+  const blocksHtml = blocks.map(b =>
+    `<div class="momentum-block mb-${b.type}${b.isToday ? ' mb-today' : ''}"></div>`
+  ).join('');
+  const streakNote = currentStreak >= 5
+    ? `<div class="momentum-streak-note">⚡ ${currentStreak} days unbroken. The Forge takes notice.</div>`
+    : '';
+  document.getElementById('insights-momentum').innerHTML = `
+    <div class="momentum-timeline">${blocksHtml}</div>
+    <div class="momentum-legend">
+      <div class="momentum-legend-item">
+        <div class="momentum-legend-swatch" style="background:var(--gold)"></div>Perfect
+      </div>
+      <div class="momentum-legend-item">
+        <div class="momentum-legend-swatch" style="background:var(--fire);opacity:0.7"></div>Logged
+      </div>
+      <div class="momentum-legend-item">
+        <div class="momentum-legend-swatch" style="background:var(--border)"></div>Missed
+      </div>
+    </div>
+    ${streakNote}
+  `;
+}
+
+// ── Recovery Stat ──
+
+function getRecoveryStat() {
+  const sortedKeys = Object.keys(state.days).sort();
+  if (sortedKeys.length < 7) return null;
+
+  const start = new Date(sortedKeys[0] + 'T12:00:00');
+  const end   = new Date(getTodayStr() + 'T12:00:00');
+  const timeline = [];
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const key = localDateStr(new Date(d));
+    timeline.push({ date: key, logged: !!state.days[key] });
+  }
+
+  const recoveries = [];
+  let i = 0;
+  while (i < timeline.length) {
+    if (timeline[i].logged) {
+      let j = i + 1;
+      let misses = 0;
+      while (j < timeline.length && !timeline[j].logged) { misses++; j++; }
+      if (misses >= 2 && j < timeline.length && timeline[j].logged) {
+        recoveries.push(misses);
+        i = j;
+      } else {
+        i = j > i + 1 ? j : i + 1;
+      }
+    } else {
+      i++;
+    }
+  }
+
+  const recent = recoveries.slice(-10);
+  if (recent.length < 3) return null;
+  const avg = (recent.reduce((a, b) => a + b, 0) / recent.length).toFixed(1);
+  return { avg, count: recent.length };
+}
+
+function renderInsightsRecovery() {
+  const stat = getRecoveryStat();
+  const el = document.getElementById('insights-recovery');
+  if (!stat) {
+    el.innerHTML = `<div class="recovery-placeholder">Not enough breaks to measure. Good. Keep it that way.</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="recovery-big">${stat.avg}</div>
+    <div class="recovery-unit">days to bounce back</div>
+    <div class="recovery-subtext">You typically bounce back in ${stat.avg} days. The Forge has seen worse.</div>
+  `;
 }
 
 function getSerathDialogue() {
