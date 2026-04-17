@@ -631,6 +631,7 @@ body {
   transition: background 0.15s;
 }
 .welcome-btn:hover { background: var(--fire-glow); }
+.welcome-quote.review { font-size: 14px; line-height: 1.6; text-align: left; }
 
 /* ── ACHIEVEMENT INTERRUPT ── */
 .ach-overlay {
@@ -2087,9 +2088,9 @@ body {
   <!-- Welcome quote overlay -->
   <div class="welcome-overlay" id="welcome-overlay" onclick="dismissWelcome()">
     <div class="welcome-card" onclick="event.stopPropagation()">
-      <div class="welcome-eyebrow">✦ system message</div>
+      <div class="welcome-eyebrow" id="welcome-eyebrow">✦ system message</div>
       <div class="welcome-quote" id="welcome-quote">—</div>
-      <button class="welcome-btn" onclick="dismissWelcome()">Enter the Forge</button>
+      <button class="welcome-btn" id="welcome-btn" onclick="dismissWelcome()">Enter the Forge</button>
     </div>
   </div>
 
@@ -4432,9 +4433,89 @@ const WELCOME_QUOTES = [
   "Status check initiated. Vitals: unknown. Deeds: unrecorded. This is not acceptable. Fix it.",
 ];
 
+function buildWeeklyReview() {
+  const today = new Date();
+  const week = [];
+  for (let i = 7; i >= 1; i--) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    week.push(state.days[localDateStr(d)] || null);
+  }
+
+  const logged   = week.filter(Boolean).length;
+  const perfect  = week.filter(d => d && d.perfect).length;
+  const steps    = week.reduce((s, d) => s + (d ? (d.steps || 0) : 0), 0);
+  const counts   = {};
+  for (const a of ATTRS) counts[a] = week.filter(d => d && d.checks && d.checks[a]).length;
+
+  const top = ATTRS.reduce((a, b) => counts[a] >= counts[b] ? a : b);
+  const bot = ATTRS.reduce((a, b) => counts[a] <= counts[b] ? a : b);
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  const stepNote = steps === 0 ? '' :
+    steps < 20000  ? ` ${steps.toLocaleString()} total steps — present, but not exactly mobile.` :
+    steps < 60000  ? ` ${steps.toLocaleString()} steps logged.` :
+    steps < 100000 ? ` ${steps.toLocaleString()} steps. You moved.` :
+                     ` ${steps.toLocaleString()} steps. That's not a walk. That's a migration.`;
+
+  const perfNote = perfect === 0 ? '' :
+    perfect === 1 ? ' One perfect day in there.' :
+    perfect <= 3  ? ` ${perfect} perfect days.` :
+                    ` ${perfect} perfect days. The System is recalibrating its expectations.`;
+
+  const attrNote = counts[top] === 0 ? '' :
+    counts[bot] === 0
+      ? ` ${cap(top)} was your most consistent stat. ${cap(bot)} did not appear once.`
+      : counts[top] === counts[bot]
+        ? ` You spread yourself evenly across all attributes. The System respects this and finds it slightly suspicious.`
+        : ` ${cap(top)} was your most reliable stat at ${counts[top]} of ${logged} days. ${cap(bot)} showed up ${counts[bot]} time${counts[bot] === 1 ? '' : 's'}.`;
+
+  if (logged === 0) {
+    return "WEEKLY DEBRIEF: Zero days logged last week. The System checked the record three times. The record remains zero. Whatever occupied your time out there, it did not make it into the log. The Forge is not angry. The Forge is simply noting what it sees. This week is a clean slate. Use it differently.";
+  }
+  if (logged === 1) {
+    return `One day logged out of seven.${stepNote} The Forge found it. It is holding it carefully. One log means you remembered this existed, opened it, and then did not open it again for six days. That's a specific kind of inconsistency. The kind with a known solution. Start today and don't stop.`;
+  }
+  if (logged === 2) {
+    return `Two days logged last week.${stepNote}${attrNote} That's above 'giving up' and below 'momentum.' You are in an uncomfortable middle space. The Forge is not impressed, but it is watching. Show up four times this week. The math will start to change.`;
+  }
+  if (logged === 3) {
+    return `Three days last week.${stepNote}${attrNote} The Forge has classified this as functional but underperforming. Three out of seven means you're doing this on your good days. The goal is to stop having bad days. This week, add one more. See if the ceiling moves.`;
+  }
+  if (logged === 4) {
+    return `Four days logged.${stepNote}${perfNote}${attrNote} More than half. That counts. The Forge notes this without enthusiasm, which — in Forge terms — is a compliment. You are on the right side of the line. The goal now is to stop being near it.`;
+  }
+  if (logged === 5) {
+    return `Five days last week.${stepNote}${perfNote}${attrNote} That's a real week. The kind where momentum starts to compound and the habit stops feeling like a decision. The Forge has updated your threat level to 'probably serious.' Don't prove it wrong.`;
+  }
+  if (logged === 6) {
+    return `Six days out of seven.${stepNote}${perfNote}${attrNote} The Forge was prepared for five. Six required a different response. You took one day off — the System will allow it — but six days on means one day off is rest, not retreat. Don't let it become a pattern. The seventh day exists.`;
+  }
+  // 7 days
+  return `Seven days. Every single one.${stepNote}${perfNote}${attrNote} The System reviewed this twice because seven felt like an error. It was not an error. This is what the record looks like when you stop negotiating with yourself. The Forge is not easily impressed. This week, it is. Don't make it weird. Just do it again.`;
+}
+
 function showWelcomeQuote() {
-  const quote = WELCOME_QUOTES[Math.floor(Math.random() * WELCOME_QUOTES.length)];
-  document.getElementById('welcome-quote').textContent = quote;
+  const isMonday = new Date().getDay() === 1;
+  const hasLastWeek = isMonday && (() => {
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      if (state.days[localDateStr(d)]) return true;
+    }
+    return false;
+  })();
+
+  const el = document.getElementById('welcome-quote');
+  if (hasLastWeek) {
+    el.textContent = buildWeeklyReview();
+    el.classList.add('review');
+    document.getElementById('welcome-eyebrow').textContent = '✦ weekly debrief';
+    document.getElementById('welcome-btn').textContent = 'Acknowledged';
+  } else {
+    el.textContent = WELCOME_QUOTES[Math.floor(Math.random() * WELCOME_QUOTES.length)];
+    el.classList.remove('review');
+    document.getElementById('welcome-eyebrow').textContent = '✦ system message';
+    document.getElementById('welcome-btn').textContent = 'Enter the Forge';
+  }
   document.getElementById('welcome-overlay').classList.add('show');
 }
 
