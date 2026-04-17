@@ -589,6 +589,49 @@ body {
 }
 .trophy-btn.has-new .trophy-count { display: inline; }
 
+/* ── WELCOME QUOTE OVERLAY ── */
+.welcome-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 200;
+}
+.welcome-overlay.show { opacity: 1; pointer-events: all; }
+.welcome-card {
+  background: var(--surface);
+  border: 1px solid var(--fire-dim);
+  border-top: 2px solid var(--fire);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  max-width: 380px; width: 90%;
+  text-align: center;
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.welcome-overlay.show .welcome-card { transform: translateY(0) scale(1); }
+.welcome-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--fire); margin-bottom: 16px;
+}
+.welcome-quote {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; line-height: 1.5;
+  color: var(--text-dim); margin-bottom: 24px;
+  font-style: italic;
+}
+.welcome-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  background: none; border: 1px solid var(--fire);
+  color: var(--fire); padding: 8px 24px; cursor: pointer;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+.welcome-btn:hover { background: var(--fire-glow); }
+
 /* ── ACHIEVEMENT INTERRUPT ── */
 .ach-overlay {
   position: fixed;
@@ -1874,9 +1917,6 @@ body {
         🏆 <span>Feats</span>
         <span class="trophy-count" id="trophy-count">0</span>
       </button>
-      <button class="trophy-btn" id="notif-btn" onclick="requestNotificationPermission()" title="Daily reminder at 9pm">
-        🔔 Remind me
-      </button>
     </div>
   </header>
 
@@ -2041,6 +2081,15 @@ body {
       <div class="ach-interrupt-desc" id="ach-desc">—</div>
       <div class="ach-interrupt-pts" id="ach-pts">+0 Forge Points</div>
       <button class="ach-dismiss-btn" onclick="dismissAch()">Acknowledge &amp; Continue</button>
+    </div>
+  </div>
+
+  <!-- Welcome quote overlay -->
+  <div class="welcome-overlay" id="welcome-overlay" onclick="dismissWelcome()">
+    <div class="welcome-card" onclick="event.stopPropagation()">
+      <div class="welcome-eyebrow">✦ system message</div>
+      <div class="welcome-quote" id="welcome-quote">—</div>
+      <button class="welcome-btn" onclick="dismissWelcome()">Enter the Forge</button>
     </div>
   </div>
 
@@ -2608,7 +2657,6 @@ function submitDay() {
   saveState(state);
   checkAchievements();
   checkQuests();
-  notifyLoggedToday();
 
   document.getElementById('submit-btn').textContent = 'Forged ✓';
   document.getElementById('submit-btn').disabled = true;
@@ -4278,73 +4326,36 @@ function doImport() {
 // SERVICE WORKER & NOTIFICATIONS
 // ─────────────────────────────────────────────
 
-async function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
-  try {
-    const reg = await navigator.serviceWorker.register('/sw.js');
-    console.log('Forge SW registered:', reg.scope);
+// ─────────────────────────────────────────────
+// WELCOME QUOTES
+// ─────────────────────────────────────────────
 
-    // Listen for CHECK_LOGGED messages from SW
-    navigator.serviceWorker.addEventListener('message', e => {
-      if (e.data.type === 'CHECK_LOGGED') {
-        const today = getTodayStr();
-        const logged = !!state.days[today];
-        e.ports[0].postMessage({ logged });
-      }
-    });
-  } catch (err) {
-    console.warn('SW registration failed:', err);
-  }
+const WELCOME_QUOTES = [
+  "SYSTEM ALERT: A new crawl cycle has begun. Your stats don't update themselves. Get in here.",
+  "Welcome back, Crawler. The dungeon doesn't care that you're tired. Neither does your leaderboard position.",
+  "You have survived another day. Whether today's performance warrants a record is yet to be determined.",
+  "The System has detected a returning Crawler. Your status: INCOMPLETE. Rectify this.",
+  "Princess Donut has been waiting. She's judging you. She's always judging you. Log your day.",
+  "The crawl continues. Yesterday's gains mean nothing if you don't show up today.",
+  "SYSTEM MESSAGE: This floor doesn't clear itself. Neither does your daily log. You know what to do.",
+  "Another cycle. The dungeon remembers who showed up. Make sure it remembers you.",
+  "Millions are watching. Some of them are betting on you to fail. Don't give them the satisfaction.",
+  "You are still alive. This is statistically improbable given your recent choices. Log it before the odds catch up.",
+  "The Forge does not reward hesitation. It rewards presence. You are present. That is step one.",
+  "NOTICE: Crawlers who fail to log their deeds are indistinguishable from crawlers who did nothing. Don't be that crawler.",
+  "Your streak is a living thing. It requires feeding. Enter the Forge.",
+  "The dungeon has a long memory. Make today worth remembering.",
+  "Status check initiated. Vitals: unknown. Deeds: unrecorded. This is not acceptable. Fix it.",
+];
+
+function showWelcomeQuote() {
+  const quote = WELCOME_QUOTES[Math.floor(Math.random() * WELCOME_QUOTES.length)];
+  document.getElementById('welcome-quote').textContent = quote;
+  document.getElementById('welcome-overlay').classList.add('show');
 }
 
-async function requestNotificationPermission() {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'granted') {
-    updateNotifBtn();
-    return;
-  }
-  if (Notification.permission === 'denied') {
-    updateNotifBtn();
-    return;
-  }
-  // Ask for permission
-  const result = await Notification.requestPermission();
-  updateNotifBtn();
-  if (result === 'granted') {
-    showToast('🔔 Notifications enabled — The Forge will remind you at 9pm.');
-    // Tell SW to schedule
-    const sw = navigator.serviceWorker.controller;
-    if (sw) sw.postMessage({ type: 'SCHEDULE_CHECK' });
-  }
-}
-
-function updateNotifBtn() {
-  const btn = document.getElementById('notif-btn');
-  if (!btn) return;
-  if (!('Notification' in window)) {
-    btn.style.display = 'none';
-    return;
-  }
-  if (Notification.permission === 'granted') {
-    btn.textContent = '🔔 9pm';
-    btn.style.borderColor = 'var(--green)';
-    btn.style.color = 'var(--green-bright)';
-  } else if (Notification.permission === 'denied') {
-    btn.textContent = '🔕';
-    btn.style.color = 'var(--text-faint)';
-    btn.title = 'Notifications blocked — enable in browser settings';
-  } else {
-    btn.textContent = '🔔 Remind me';
-    btn.style.borderColor = 'var(--border-bright)';
-    btn.style.color = 'var(--text-dim)';
-  }
-}
-
-function notifyLoggedToday() {
-  // Tell SW user has logged — suppress tonight's notification
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({ type: 'LOGGED_TODAY' });
-  }
+function dismissWelcome() {
+  document.getElementById('welcome-overlay').classList.remove('show');
 }
 
 // ─────────────────────────────────────────────
@@ -4601,8 +4612,7 @@ function renderSerathScreen() {
   if (!state.weightLog) state.weightLog = [];
   if (!state.points) state.points = 0;
   init();
-  registerServiceWorker();
-  updateNotifBtn();
+  showWelcomeQuote();
 })();
 window.addEventListener('resize', renderWeightGraph);
 </script>
