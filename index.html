@@ -449,6 +449,29 @@ body {
   font-size: 13px;
   font-style: italic;
 }
+.graph-window-btns {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+.graph-win-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.graph-win-btn.active {
+  border-color: var(--fire);
+  color: var(--fire);
+}
 
 /* ── WEEKLY STATS ── */
 .week-grid {
@@ -565,6 +588,49 @@ body {
   display: none;
 }
 .trophy-btn.has-new .trophy-count { display: inline; }
+
+/* ── WELCOME QUOTE OVERLAY ── */
+.welcome-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 200;
+}
+.welcome-overlay.show { opacity: 1; pointer-events: all; }
+.welcome-card {
+  background: var(--surface);
+  border: 1px solid var(--fire-dim);
+  border-top: 2px solid var(--fire);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  max-width: 380px; width: 90%;
+  text-align: center;
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.welcome-overlay.show .welcome-card { transform: translateY(0) scale(1); }
+.welcome-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--fire); margin-bottom: 16px;
+}
+.welcome-quote {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; line-height: 1.5;
+  color: var(--text-dim); margin-bottom: 24px;
+  font-style: italic;
+}
+.welcome-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  background: none; border: 1px solid var(--fire);
+  color: var(--fire); padding: 8px 24px; cursor: pointer;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+.welcome-btn:hover { background: var(--fire-glow); }
 
 /* ── ACHIEVEMENT INTERRUPT ── */
 .ach-overlay {
@@ -1851,9 +1917,6 @@ body {
         🏆 <span>Feats</span>
         <span class="trophy-count" id="trophy-count">0</span>
       </button>
-      <button class="trophy-btn" id="notif-btn" onclick="requestNotificationPermission()" title="Daily reminder at 9pm">
-        🔔 Remind me
-      </button>
     </div>
   </header>
 
@@ -2021,6 +2084,15 @@ body {
     </div>
   </div>
 
+  <!-- Welcome quote overlay -->
+  <div class="welcome-overlay" id="welcome-overlay" onclick="dismissWelcome()">
+    <div class="welcome-card" onclick="event.stopPropagation()">
+      <div class="welcome-eyebrow">✦ system message</div>
+      <div class="welcome-quote" id="welcome-quote">—</div>
+      <button class="welcome-btn" onclick="dismissWelcome()">Enter the Forge</button>
+    </div>
+  </div>
+
   <!-- Achievements side panel -->
   <div class="ach-panel" id="ach-panel">
     <div class="ach-panel-header">
@@ -2154,6 +2226,11 @@ body {
         <div class="weight-delta" id="weight-delta"></div>
       </div>
 
+      <div class="graph-window-btns">
+        <button class="graph-win-btn active" id="gwb-7" onclick="setWeightWindow(7)">7d</button>
+        <button class="graph-win-btn" id="gwb-30" onclick="setWeightWindow(30)">30d</button>
+        <button class="graph-win-btn" id="gwb-all" onclick="setWeightWindow(null)">All</button>
+      </div>
       <div class="graph-wrap">
         <svg class="graph-svg" id="weight-graph" height="120"></svg>
         <div class="graph-empty" id="graph-empty">Log weight for 2+ days to see your graph</div>
@@ -2580,7 +2657,6 @@ function submitDay() {
   saveState(state);
   checkAchievements();
   checkQuests();
-  notifyLoggedToday();
 
   document.getElementById('submit-btn').textContent = 'Forged ✓';
   document.getElementById('submit-btn').disabled = true;
@@ -2638,16 +2714,42 @@ function getWeightLog() {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function getWeightSeries() {
+let weightWindow = 7;
+
+function setWeightWindow(days) {
+  weightWindow = days;
+  document.getElementById('gwb-7').classList.toggle('active', days === 7);
+  document.getElementById('gwb-30').classList.toggle('active', days === 30);
+  document.getElementById('gwb-all').classList.toggle('active', days === null);
+  renderWeightGraph();
+}
+
+function getWeightSeries(windowDays) {
   const wl = getWeightLog();
   if (wl.length === 0) return [];
   const byDate = {};
   wl.forEach(({ date, weight }) => byDate[date] = weight);
   const today = getTodayStr();
+
+  // Determine start date based on window
+  let startDate = wl[0].date;
+  if (windowDays !== null && windowDays !== undefined) {
+    const startCursor = new Date(today + 'T00:00:00');
+    startCursor.setDate(startCursor.getDate() - (windowDays - 1));
+    const windowStart = localDateStr(startCursor);
+    startDate = windowStart > wl[0].date ? windowStart : wl[0].date;
+  }
+
+  // Seed with last known weight at or before startDate
+  let lastWeight = wl[0].weight;
+  for (const entry of wl) {
+    if (entry.date <= startDate) lastWeight = entry.weight;
+    else break;
+  }
+
   const endDate = today > wl[wl.length - 1].date ? today : wl[wl.length - 1].date;
   const series = [];
-  let lastWeight = wl[0].weight;
-  const cursor = new Date(wl[0].date + 'T00:00:00');
+  const cursor = new Date(startDate + 'T00:00:00');
   const end = new Date(endDate + 'T00:00:00');
   while (cursor <= end) {
     const dateStr = localDateStr(cursor);
@@ -2696,7 +2798,7 @@ function renderWeightGraph() {
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('height', H);
 
-  const series = getWeightSeries();
+  const series = getWeightSeries(weightWindow);
   const weights = series.map(w => w.weight);
   const minW = Math.min(...weights) - 1;
   const maxW = Math.max(...weights) + 1;
@@ -4224,73 +4326,36 @@ function doImport() {
 // SERVICE WORKER & NOTIFICATIONS
 // ─────────────────────────────────────────────
 
-async function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
-  try {
-    const reg = await navigator.serviceWorker.register('/sw.js');
-    console.log('Forge SW registered:', reg.scope);
+// ─────────────────────────────────────────────
+// WELCOME QUOTES
+// ─────────────────────────────────────────────
 
-    // Listen for CHECK_LOGGED messages from SW
-    navigator.serviceWorker.addEventListener('message', e => {
-      if (e.data.type === 'CHECK_LOGGED') {
-        const today = getTodayStr();
-        const logged = !!state.days[today];
-        e.ports[0].postMessage({ logged });
-      }
-    });
-  } catch (err) {
-    console.warn('SW registration failed:', err);
-  }
+const WELCOME_QUOTES = [
+  "SYSTEM ALERT: A new crawl cycle has begun. Your stats don't update themselves. Get in here.",
+  "Welcome back, Crawler. The dungeon doesn't care that you're tired. Neither does your leaderboard position.",
+  "You have survived another day. Whether today's performance warrants a record is yet to be determined.",
+  "The System has detected a returning Crawler. Your status: INCOMPLETE. Rectify this.",
+  "Princess Donut has been waiting. She's judging you. She's always judging you. Log your day.",
+  "The crawl continues. Yesterday's gains mean nothing if you don't show up today.",
+  "SYSTEM MESSAGE: This floor doesn't clear itself. Neither does your daily log. You know what to do.",
+  "Another cycle. The dungeon remembers who showed up. Make sure it remembers you.",
+  "Millions are watching. Some of them are betting on you to fail. Don't give them the satisfaction.",
+  "You are still alive. This is statistically improbable given your recent choices. Log it before the odds catch up.",
+  "The Forge does not reward hesitation. It rewards presence. You are present. That is step one.",
+  "NOTICE: Crawlers who fail to log their deeds are indistinguishable from crawlers who did nothing. Don't be that crawler.",
+  "Your streak is a living thing. It requires feeding. Enter the Forge.",
+  "The dungeon has a long memory. Make today worth remembering.",
+  "Status check initiated. Vitals: unknown. Deeds: unrecorded. This is not acceptable. Fix it.",
+];
+
+function showWelcomeQuote() {
+  const quote = WELCOME_QUOTES[Math.floor(Math.random() * WELCOME_QUOTES.length)];
+  document.getElementById('welcome-quote').textContent = quote;
+  document.getElementById('welcome-overlay').classList.add('show');
 }
 
-async function requestNotificationPermission() {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'granted') {
-    updateNotifBtn();
-    return;
-  }
-  if (Notification.permission === 'denied') {
-    updateNotifBtn();
-    return;
-  }
-  // Ask for permission
-  const result = await Notification.requestPermission();
-  updateNotifBtn();
-  if (result === 'granted') {
-    showToast('🔔 Notifications enabled — The Forge will remind you at 9pm.');
-    // Tell SW to schedule
-    const sw = navigator.serviceWorker.controller;
-    if (sw) sw.postMessage({ type: 'SCHEDULE_CHECK' });
-  }
-}
-
-function updateNotifBtn() {
-  const btn = document.getElementById('notif-btn');
-  if (!btn) return;
-  if (!('Notification' in window)) {
-    btn.style.display = 'none';
-    return;
-  }
-  if (Notification.permission === 'granted') {
-    btn.textContent = '🔔 9pm';
-    btn.style.borderColor = 'var(--green)';
-    btn.style.color = 'var(--green-bright)';
-  } else if (Notification.permission === 'denied') {
-    btn.textContent = '🔕';
-    btn.style.color = 'var(--text-faint)';
-    btn.title = 'Notifications blocked — enable in browser settings';
-  } else {
-    btn.textContent = '🔔 Remind me';
-    btn.style.borderColor = 'var(--border-bright)';
-    btn.style.color = 'var(--text-dim)';
-  }
-}
-
-function notifyLoggedToday() {
-  // Tell SW user has logged — suppress tonight's notification
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({ type: 'LOGGED_TODAY' });
-  }
+function dismissWelcome() {
+  document.getElementById('welcome-overlay').classList.remove('show');
 }
 
 // ─────────────────────────────────────────────
@@ -4547,8 +4612,7 @@ function renderSerathScreen() {
   if (!state.weightLog) state.weightLog = [];
   if (!state.points) state.points = 0;
   init();
-  registerServiceWorker();
-  updateNotifBtn();
+  showWelcomeQuote();
 })();
 window.addEventListener('resize', renderWeightGraph);
 </script>
