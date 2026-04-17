@@ -3310,6 +3310,15 @@ function initQuests() {
     saveState(state);
   }
 
+  // One-time fix: unstick completed quests that were never marked as claimed
+  // (caused by a bug where dismissQuest() never set rewardClaimed=true)
+  ['wildcard', 'weekly', 'epic'].forEach(type => {
+    const q = state.quests[type];
+    if (q && q.completed && !q.rewardClaimed) {
+      q.rewardClaimed = true;
+    }
+  });
+
   // Wildcard: issue one every ~3 days if none active
   maybeIssueWildcard();
 
