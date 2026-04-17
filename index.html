@@ -3206,6 +3206,90 @@ const ACHIEVEMENTS = [
       return streak >= 3;
     },
   },
+  {
+    id: 'hardened_rank',
+    icon: '🪨',
+    title: 'Hardened',
+    desc: "Rank: Hardened. You have been struck repeatedly and did not shatter. This is the goal. This was always the goal.",
+    pts: 0,
+    check: (s) => s.points >= 300,
+  },
+  {
+    id: 'steelheart_rank',
+    icon: '❤️‍🔥',
+    title: 'Steelheart',
+    desc: "Rank: Steelheart. The Forge has been inside you this whole time. That's either inspiring or concerning. Probably both.",
+    pts: 0,
+    check: (s) => s.points >= 500,
+  },
+  {
+    id: 'log_fifty',
+    icon: '📜',
+    title: 'The Fifty',
+    desc: "Fifty days logged. You are no longer someone who tried this. You are someone who does this. The distinction is permanent and slightly inconvenient.",
+    pts: 30,
+    check: (s) => Object.keys(s.days).length >= 50,
+  },
+  {
+    id: 'fourteen_day_streak',
+    icon: '🔥',
+    title: 'Fortnight Forged',
+    desc: "Fourteen consecutive days. Two full weeks. The habit has calcified. You cannot simply stop now. The Forge has your address.",
+    pts: 35,
+    check: (s) => {
+      for (let i = 1; i <= 14; i++) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        if (!s.days[localDateStr(d)]) return false;
+      }
+      return true;
+    },
+  },
+  {
+    id: 'five_perfect',
+    icon: '💎',
+    title: 'Suspiciously Consistent',
+    desc: "Five Perfect Days. The System has reviewed your record. The System is beginning to believe you. This is not easy to accomplish. Well done. Now do it again.",
+    pts: 40,
+    check: (s) => Object.values(s.days).filter(d => d.perfect).length >= 5,
+  },
+  {
+    id: 'weekend_warrior',
+    icon: '🏖️',
+    title: 'The Weekend Did Not Win',
+    desc: "Saturday and Sunday. Both logged. The couch made its case. The couch was overruled. The Forge notes this in your permanent record.",
+    pts: 10,
+    check: (s) => Object.keys(s.days).some(dateStr => {
+      const d = new Date(dateStr + 'T12:00:00');
+      if (d.getDay() === 6) {
+        const sun = new Date(d); sun.setDate(sun.getDate() + 1);
+        return !!s.days[localDateStr(sun)];
+      }
+      return false;
+    }),
+  },
+  {
+    id: 'influence_streak',
+    icon: '📈',
+    title: "The Pipeline Doesn't Sleep",
+    desc: "Three consecutive days with influence logged. You have become the grind. The grind does not know this. The grind does not care. Keep pushing the pipeline.",
+    pts: 8,
+    check: (s) => {
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const day = s.days[localDateStr(d)];
+        if (!day || !day.checks || !day.checks.influence) return false;
+      }
+      return true;
+    },
+  },
+  {
+    id: 'weight_tracker_30',
+    icon: '⚖️',
+    title: 'The Long Record',
+    desc: "Thirty weight entries. You have a dataset now. The dataset has a story. We hope it's the story you wanted. We also hope you've been hydrating.",
+    pts: 20,
+    check: () => getWeightLog().length >= 30,
+  },
 ];
 
 // Queue for showing achievements one at a time
