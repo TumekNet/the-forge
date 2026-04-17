@@ -449,6 +449,29 @@ body {
   font-size: 13px;
   font-style: italic;
 }
+.graph-window-btns {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+.graph-win-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.graph-win-btn.active {
+  border-color: var(--fire);
+  color: var(--fire);
+}
 
 /* ── WEEKLY STATS ── */
 .week-grid {
@@ -2154,6 +2177,11 @@ body {
         <div class="weight-delta" id="weight-delta"></div>
       </div>
 
+      <div class="graph-window-btns">
+        <button class="graph-win-btn active" id="gwb-7" onclick="setWeightWindow(7)">7d</button>
+        <button class="graph-win-btn" id="gwb-30" onclick="setWeightWindow(30)">30d</button>
+        <button class="graph-win-btn" id="gwb-all" onclick="setWeightWindow(null)">All</button>
+      </div>
       <div class="graph-wrap">
         <svg class="graph-svg" id="weight-graph" height="120"></svg>
         <div class="graph-empty" id="graph-empty">Log weight for 2+ days to see your graph</div>
@@ -2638,16 +2666,42 @@ function getWeightLog() {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function getWeightSeries() {
+let weightWindow = 7;
+
+function setWeightWindow(days) {
+  weightWindow = days;
+  document.getElementById('gwb-7').classList.toggle('active', days === 7);
+  document.getElementById('gwb-30').classList.toggle('active', days === 30);
+  document.getElementById('gwb-all').classList.toggle('active', days === null);
+  renderWeightGraph();
+}
+
+function getWeightSeries(windowDays) {
   const wl = getWeightLog();
   if (wl.length === 0) return [];
   const byDate = {};
   wl.forEach(({ date, weight }) => byDate[date] = weight);
   const today = getTodayStr();
+
+  // Determine start date based on window
+  let startDate = wl[0].date;
+  if (windowDays !== null && windowDays !== undefined) {
+    const startCursor = new Date(today + 'T00:00:00');
+    startCursor.setDate(startCursor.getDate() - (windowDays - 1));
+    const windowStart = localDateStr(startCursor);
+    startDate = windowStart > wl[0].date ? windowStart : wl[0].date;
+  }
+
+  // Seed with last known weight at or before startDate
+  let lastWeight = wl[0].weight;
+  for (const entry of wl) {
+    if (entry.date <= startDate) lastWeight = entry.weight;
+    else break;
+  }
+
   const endDate = today > wl[wl.length - 1].date ? today : wl[wl.length - 1].date;
   const series = [];
-  let lastWeight = wl[0].weight;
-  const cursor = new Date(wl[0].date + 'T00:00:00');
+  const cursor = new Date(startDate + 'T00:00:00');
   const end = new Date(endDate + 'T00:00:00');
   while (cursor <= end) {
     const dateStr = localDateStr(cursor);
@@ -2696,7 +2750,7 @@ function renderWeightGraph() {
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('height', H);
 
-  const series = getWeightSeries();
+  const series = getWeightSeries(weightWindow);
   const weights = series.map(w => w.weight);
   const minW = Math.min(...weights) - 1;
   const maxW = Math.max(...weights) + 1;
