@@ -2638,6 +2638,26 @@ function getWeightLog() {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function getWeightSeries() {
+  const wl = getWeightLog();
+  if (wl.length === 0) return [];
+  const byDate = {};
+  wl.forEach(({ date, weight }) => byDate[date] = weight);
+  const today = getTodayStr();
+  const endDate = today > wl[wl.length - 1].date ? today : wl[wl.length - 1].date;
+  const series = [];
+  let lastWeight = wl[0].weight;
+  const cursor = new Date(wl[0].date + 'T00:00:00');
+  const end = new Date(endDate + 'T00:00:00');
+  while (cursor <= end) {
+    const dateStr = localDateStr(cursor);
+    if (byDate[dateStr] !== undefined) lastWeight = byDate[dateStr];
+    series.push({ date: dateStr, weight: lastWeight, actual: byDate[dateStr] !== undefined });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return series;
+}
+
 function renderWeightDelta() {
   const el = document.getElementById('weight-delta');
   const wl = getWeightLog();
@@ -2676,13 +2696,15 @@ function renderWeightGraph() {
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('height', H);
 
-  const weights = wl.map(w => w.weight);
+  const series = getWeightSeries();
+  const weights = series.map(w => w.weight);
   const minW = Math.min(...weights) - 1;
   const maxW = Math.max(...weights) + 1;
   const range = maxW - minW || 1;
 
-  const pts = wl.map((w, i) => {
-    const x = PAD.left + (i / (wl.length-1)) * (W - PAD.left - PAD.right);
+  const totalDays = series.length - 1 || 1;
+  const pts = series.map((w, i) => {
+    const x = PAD.left + (i / totalDays) * (W - PAD.left - PAD.right);
     const y = PAD.top + (1 - (w.weight - minW)/range) * (H - PAD.top - PAD.bottom);
     return [x, y, w];
   });
@@ -2701,15 +2723,15 @@ function renderWeightGraph() {
   const lineD = pts.map((p,i) => `${i===0?'M':'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const areaD = lineD + ` L${pts[pts.length-1][0].toFixed(1)},${H-PAD.bottom} L${pts[0][0].toFixed(1)},${H-PAD.bottom} Z`;
 
-  // Dots
-  let dotsSVG = pts.map(p =>
+  // Dots — only on actual logged entries
+  let dotsSVG = pts.filter(p => p[2].actual).map(p =>
     `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#e8541a"/>`
   ).join('');
 
-  // Today label
+  // Label at end of chart, showing last logged weight
   const last = pts[pts.length-1];
   const labelY = last[1] > 20 ? last[1] - 8 : last[1] + 16;
-  const labelSVG = `<text x="${last[0].toFixed(1)}" y="${labelY}" text-anchor="middle" font-size="10" fill="#e8541a" font-family="Barlow Condensed,sans-serif" font-weight="600">${last[2].weight}</text>`;
+  const labelSVG = `<text x="${last[0].toFixed(1)}" y="${labelY}" text-anchor="middle" font-size="10" fill="#e8541a" font-family="Barlow Condensed,sans-serif" font-weight="600">${wl[wl.length-1].weight}</text>`;
 
   svg.innerHTML = `
     <defs>
@@ -3309,6 +3331,15 @@ function initQuests() {
 
     saveState(state);
   }
+
+  // One-time fix: unstick completed quests that were never marked as claimed
+  // (caused by a bug where dismissQuest() never set rewardClaimed=true)
+  ['wildcard', 'weekly', 'epic'].forEach(type => {
+    const q = state.quests[type];
+    if (q && q.completed && !q.rewardClaimed) {
+      q.rewardClaimed = true;
+    }
+  });
 
   // Wildcard: issue one every ~3 days if none active
   maybeIssueWildcard();
