@@ -38,13 +38,26 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse at 15% 85%, rgba(60,30,10,0.3) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, rgba(15,15,40,0.25) 0%, transparent 55%),
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.005) 3px, rgba(255,255,255,0.005) 4px),
+    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(255,255,255,0.003) 4px, rgba(255,255,255,0.003) 5px),
+    var(--bg);
   color: var(--text);
   font-family: 'Barlow', sans-serif;
   font-weight: 300;
   min-height: 100vh;
   padding: 24px 16px 60px;
 }
+
+/* ── PER-ATTRIBUTE COLORS ── */
+[data-attr="vitality"]     { --attr-color: #c83232; --attr-bg: rgba(200,50,50,0.07); --attr-border: rgba(200,50,50,0.45); --attr-glow: rgba(200,50,50,0.22); }
+[data-attr="stamina"]      { --attr-color: #2472b8; --attr-bg: rgba(36,114,184,0.07); --attr-border: rgba(36,114,184,0.45); --attr-glow: rgba(36,114,184,0.22); }
+[data-attr="influence"]    { --attr-color: #8840c8; --attr-bg: rgba(136,64,200,0.07); --attr-border: rgba(136,64,200,0.45); --attr-glow: rgba(136,64,200,0.22); }
+[data-attr="strength"]     { --attr-color: #c85010; --attr-bg: rgba(200,80,16,0.07); --attr-border: rgba(200,80,16,0.45); --attr-glow: rgba(200,80,16,0.22); }
+[data-attr="constitution"] { --attr-color: #287848; --attr-bg: rgba(40,120,72,0.07); --attr-border: rgba(40,120,72,0.45); --attr-glow: rgba(40,120,72,0.22); }
+[data-attr="intelligence"] { --attr-color: #18908a; --attr-bg: rgba(24,144,138,0.07); --attr-border: rgba(24,144,138,0.45); --attr-glow: rgba(24,144,138,0.22); }
 
 /* ── HEADER ── */
 .header {
@@ -284,19 +297,41 @@ body {
   overflow: hidden;
 }
 .attr-row.checked {
-  border-color: var(--fire-dim);
-  background: rgba(232,84,26,0.06);
+  border-color: var(--attr-border, var(--fire-dim));
+  background: var(--attr-bg, rgba(232,84,26,0.06));
 }
 .attr-row.checked::before {
   content: '';
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 2px;
-  background: var(--fire);
+  background: var(--attr-color, var(--fire));
+}
+.attr-row.checked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--attr-glow, var(--fire-glow)) 0%, transparent 60%);
 }
 .attr-row:hover { border-color: var(--border-bright); }
 
 .attr-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+
+/* ── CIRCULAR ATTR ICON ── */
+.attr-img {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  flex-shrink: 0;
+  border: 1.5px solid var(--attr-color, var(--border));
+  transition: box-shadow 0.25s, border-color 0.25s;
+  display: block;
+}
+.attr-row.checked .attr-img {
+  box-shadow: 0 0 10px var(--attr-glow, var(--fire-glow)), 0 0 22px var(--attr-glow, var(--fire-glow));
+}
 .attr-info { flex: 1; }
 .attr-name {
   font-family: 'Barlow Condensed', sans-serif;
@@ -321,8 +356,9 @@ body {
   transition: all 0.15s;
 }
 .attr-row.checked .check-box {
-  border-color: var(--fire);
-  background: var(--fire-dim);
+  border-color: var(--attr-color, var(--fire));
+  background: var(--attr-glow, var(--fire-dim));
+  color: #fff;
 }
 
 /* Number inputs */
@@ -483,6 +519,19 @@ body {
   text-align: center;
 }
 .week-stat-icon { font-size: 16px; margin-bottom: 4px; }
+.week-stat-img {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  border: 1.5px solid var(--attr-color, var(--border));
+  display: block;
+  margin: 0 auto 4px;
+  transition: box-shadow 0.25s;
+}
+.week-stat-img.mythic {
+  box-shadow: 0 0 8px var(--attr-glow, var(--fire-glow)), 0 0 16px var(--attr-glow, var(--fire-glow));
+}
 .week-stat-tier {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px;
@@ -1053,13 +1102,13 @@ body {
   transition: border-color 0.15s, background 0.15s;
 }
 .retro-row:active { background: rgba(232,84,26,0.08); }
-.retro-row.checked { border-color: var(--fire-dim); background: rgba(232,84,26,0.06); }
+.retro-row.checked { border-color: var(--attr-border, var(--fire-dim)); background: var(--attr-bg, rgba(232,84,26,0.06)); }
 .retro-row.checked::before {
   content: '';
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 2px;
-  background: var(--fire);
+  background: var(--attr-color, var(--fire));
   border-radius: 2px 0 0 2px;
 }
 .retro-row { position: relative; overflow: hidden; }
@@ -1082,7 +1131,7 @@ body {
   flex-shrink: 0;
   transition: all 0.15s;
 }
-.retro-row.checked .retro-check { border-color: var(--fire); background: var(--fire-dim); }
+.retro-row.checked .retro-check { border-color: var(--attr-color, var(--fire)); background: var(--attr-glow, var(--fire-dim)); }
 
 .retro-num-row {
   display: flex;
@@ -1331,9 +1380,7 @@ body {
   white-space: nowrap;
 }
 .attr-pip.done {
-  background: rgba(232,84,26,0.1);
-  border-color: var(--fire-dim);
-  color: var(--fire);
+  font-weight: 600;
 }
 .attr-pip.steps-done {
   background: rgba(42,138,74,0.1);
@@ -2236,27 +2283,27 @@ body {
       </div>
 
       <div class="retro-attrs" id="retro-attrs">
-        <div class="retro-row" id="retro-row-vitality" onclick="retroToggle('vitality')">
+        <div class="retro-row" id="retro-row-vitality" data-attr="vitality" onclick="retroToggle('vitality')">
           <div class="retro-icon">❤️</div>
           <div class="retro-label">Vitality — Ate well</div>
           <div class="retro-check" id="retro-check-vitality"></div>
         </div>
-        <div class="retro-row" id="retro-row-influence" onclick="retroToggle('influence')">
+        <div class="retro-row" id="retro-row-influence" data-attr="influence" onclick="retroToggle('influence')">
           <div class="retro-icon">🗣️</div>
           <div class="retro-label">Influence — Pipeline</div>
           <div class="retro-check" id="retro-check-influence"></div>
         </div>
-        <div class="retro-row" id="retro-row-strength" onclick="retroToggle('strength')">
+        <div class="retro-row" id="retro-row-strength" data-attr="strength" onclick="retroToggle('strength')">
           <div class="retro-icon">💪</div>
           <div class="retro-label">Strength — Trained</div>
           <div class="retro-check" id="retro-check-strength"></div>
         </div>
-        <div class="retro-row" id="retro-row-constitution" onclick="retroToggle('constitution')">
+        <div class="retro-row" id="retro-row-constitution" data-attr="constitution" onclick="retroToggle('constitution')">
           <div class="retro-icon">🛡️</div>
           <div class="retro-label">Constitution — Environment</div>
           <div class="retro-check" id="retro-check-constitution"></div>
         </div>
-        <div class="retro-row" id="retro-row-intelligence" onclick="retroToggle('intelligence')">
+        <div class="retro-row" id="retro-row-intelligence" data-attr="intelligence" onclick="retroToggle('intelligence')">
           <div class="retro-icon">🧠</div>
           <div class="retro-label">Intelligence — Learned</div>
           <div class="retro-check" id="retro-check-intelligence"></div>
@@ -2399,8 +2446,8 @@ body {
 
       <div class="attr-list">
         <!-- Vitality: yes/no -->
-        <div class="attr-row" id="row-vitality" onclick="toggleCheck('vitality')">
-          <div class="attr-icon">❤️</div>
+        <div class="attr-row" id="row-vitality" data-attr="vitality" onclick="toggleCheck('vitality')">
+          <img class="attr-img" src="attr-vitality.png" alt="Vitality" onerror="this.outerHTML='<div class=\'attr-icon\'>❤️</div>'">
           <div class="attr-info">
             <div class="attr-name">Vitality</div>
             <div class="attr-desc">Ate well today</div>
@@ -2409,8 +2456,8 @@ body {
         </div>
 
         <!-- Stamina: steps number -->
-        <div class="attr-row" id="row-stamina">
-          <div class="attr-icon">🏃</div>
+        <div class="attr-row" id="row-stamina" data-attr="stamina">
+          <img class="attr-img" src="attr-stamina.png" alt="Stamina" onerror="this.outerHTML='<div class=\'attr-icon\'>🏃</div>'">
           <div class="attr-info">
             <div class="attr-name">Stamina</div>
             <div class="attr-desc">Daily steps — 10,000 target</div>
@@ -2422,8 +2469,8 @@ body {
         </div>
 
         <!-- Influence: yes/no -->
-        <div class="attr-row" id="row-influence" onclick="toggleCheck('influence')">
-          <div class="attr-icon">🗣️</div>
+        <div class="attr-row" id="row-influence" data-attr="influence" onclick="toggleCheck('influence')">
+          <img class="attr-img" src="attr-influence.png" alt="Influence" onerror="this.outerHTML='<div class=\'attr-icon\'>🗣️</div>'">
           <div class="attr-info">
             <div class="attr-name">Influence</div>
             <div class="attr-desc">Moved the pipeline / meaningful work</div>
@@ -2432,8 +2479,8 @@ body {
         </div>
 
         <!-- Strength: yes/no -->
-        <div class="attr-row" id="row-strength" onclick="toggleCheck('strength')">
-          <div class="attr-icon">💪</div>
+        <div class="attr-row" id="row-strength" data-attr="strength" onclick="toggleCheck('strength')">
+          <img class="attr-img" src="attr-strength.png" alt="Strength" onerror="this.outerHTML='<div class=\'attr-icon\'>💪</div>'">
           <div class="attr-info">
             <div class="attr-name">Strength</div>
             <div class="attr-desc">Physical training completed</div>
@@ -2442,8 +2489,8 @@ body {
         </div>
 
         <!-- Constitution: yes/no -->
-        <div class="attr-row" id="row-constitution" onclick="toggleCheck('constitution')">
-          <div class="attr-icon">🛡️</div>
+        <div class="attr-row" id="row-constitution" data-attr="constitution" onclick="toggleCheck('constitution')">
+          <img class="attr-img" src="attr-constitution.png" alt="Constitution" onerror="this.outerHTML='<div class=\'attr-icon\'>🛡️</div>'">
           <div class="attr-info">
             <div class="attr-name">Constitution</div>
             <div class="attr-desc">Maintained your environment</div>
@@ -2452,8 +2499,8 @@ body {
         </div>
 
         <!-- Intelligence: yes/no -->
-        <div class="attr-row" id="row-intelligence" onclick="toggleCheck('intelligence')">
-          <div class="attr-icon">🧠</div>
+        <div class="attr-row" id="row-intelligence" data-attr="intelligence" onclick="toggleCheck('intelligence')">
+          <img class="attr-img" src="attr-intelligence.png" alt="Intelligence" onerror="this.outerHTML='<div class=\'attr-icon\'>🧠</div>'">
           <div class="attr-info">
             <div class="attr-name">Intelligence</div>
             <div class="attr-desc">Learned or grew today</div>
@@ -3159,21 +3206,22 @@ function renderWeeklyTiers() {
   document.getElementById('week-label').textContent = `${logged}/7 days logged`;
 
   const allAttrs = [
-    {key:'vitality',icon:'❤️',label:'Vitality'},
-    {key:'stamina',icon:'🏃',label:'Stamina'},
-    {key:'influence',icon:'🗣️',label:'Influence'},
-    {key:'strength',icon:'💪',label:'Strength'},
-    {key:'constitution',icon:'🛡️',label:'Constit.'},
-    {key:'intelligence',icon:'🧠',label:'Intel.'},
+    {key:'vitality',     icon:'❤️', label:'Vitality', abbr:'VIT', img:'attr-vitality.png',     color:'#c83232', glow:'rgba(200,50,50,0.22)'},
+    {key:'stamina',      icon:'🏃', label:'Stamina',  abbr:'STM', img:'attr-stamina.png',      color:'#2472b8', glow:'rgba(36,114,184,0.22)'},
+    {key:'influence',    icon:'🗣️', label:'Influence',abbr:'INF', img:'attr-influence.png',    color:'#8840c8', glow:'rgba(136,64,200,0.22)'},
+    {key:'strength',     icon:'💪', label:'Strength', abbr:'STR', img:'attr-strength.png',     color:'#c85010', glow:'rgba(200,80,16,0.22)'},
+    {key:'constitution', icon:'🛡️', label:'Constit.', abbr:'CON', img:'attr-constitution.png', color:'#287848', glow:'rgba(40,120,72,0.22)'},
+    {key:'intelligence', icon:'🧠', label:'Intel.',   abbr:'INT', img:'attr-intelligence.png', color:'#18908a', glow:'rgba(24,144,138,0.22)'},
   ];
 
   const grid = document.getElementById('week-grid');
   grid.innerHTML = allAttrs.map(a => {
     const tier = getTierForAttr(a.key, weekDays);
-    return `<div class="week-stat">
-      <div class="week-stat-icon">${a.icon}</div>
+    const isMythic = tier === 4;
+    return `<div class="week-stat" style="--attr-color:${a.color};--attr-glow:${a.glow};">
+      <img class="week-stat-img${isMythic ? ' mythic' : ''}" src="${a.img}" alt="${a.label}" onerror="this.outerHTML='<div class=\'week-stat-icon\'>${a.icon}</div>'">
       <div class="week-stat-tier ${TIER_CLASSES[tier]}">${TIER_LABELS[tier]}</div>
-      <div class="week-stat-name">${a.label}</div>
+      <div class="week-stat-name">${a.abbr}</div>
     </div>`;
   }).join('');
 }
@@ -4239,11 +4287,11 @@ function sourceLabel(type) {
 let histTab = '7';
 
 const ATTR_DEFS = [
-  { key: 'vitality',      icon: '❤️',  label: 'Vitality' },
-  { key: 'influence',     icon: '🗣️',  label: 'Influence' },
-  { key: 'strength',      icon: '💪',  label: 'Strength' },
-  { key: 'constitution',  icon: '🛡️',  label: 'Constit.' },
-  { key: 'intelligence',  icon: '🧠',  label: 'Intel.' },
+  { key: 'vitality',      icon: '❤️',  label: 'Vitality',  abbr: 'VIT', color: '#c83232', colorBg: 'rgba(200,50,50,0.12)',  colorBorder: 'rgba(200,50,50,0.5)' },
+  { key: 'influence',     icon: '🗣️',  label: 'Influence', abbr: 'INF', color: '#8840c8', colorBg: 'rgba(136,64,200,0.12)', colorBorder: 'rgba(136,64,200,0.5)' },
+  { key: 'strength',      icon: '💪',  label: 'Strength',  abbr: 'STR', color: '#c85010', colorBg: 'rgba(200,80,16,0.12)',  colorBorder: 'rgba(200,80,16,0.5)' },
+  { key: 'constitution',  icon: '🛡️',  label: 'Constit.',  abbr: 'CON', color: '#287848', colorBg: 'rgba(40,120,72,0.12)',  colorBorder: 'rgba(40,120,72,0.5)' },
+  { key: 'intelligence',  icon: '🧠',  label: 'Intel.',    abbr: 'INT', color: '#18908a', colorBg: 'rgba(24,144,138,0.12)', colorBorder: 'rgba(24,144,138,0.5)' },
 ];
 
 function openHistoryScreen() {
@@ -4412,7 +4460,8 @@ function renderDayRow(dateStr) {
 
   const attrPips = ATTR_DEFS.map(a => {
     const done = day?.checks?.[a.key];
-    return `<span class="attr-pip ${done ? 'done' : ''}">${a.icon} ${a.label}</span>`;
+    const style = done ? `style="background:${a.colorBg};border-color:${a.colorBorder};color:${a.color};"` : '';
+    return `<span class="attr-pip ${done ? 'done' : ''}" ${style}>${a.abbr}</span>`;
   }).join('');
 
   const stepsOk = (day?.steps || 0) >= STEPS_TARGET;
